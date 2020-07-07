@@ -19,9 +19,6 @@ from account import Account
 # TODO - massive amount of data needs to be received (entire list of points)
 # TODO - create an .exe file
 
-SERVER = "10.0.0.28"
-PORT = 5555
-
 P1_COLOR = P2_COLOR = (20, 20, 20)
 round = None
 s = None
@@ -42,6 +39,7 @@ def main():
         account = Account("dori", "ohev kapara")
         start_new_thread(threaded_client, (conn, account, player_amount))
         player_amount += 1
+        round.add_snake(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH))
 
         if player_amount == 2:
             print("player amount is 2")
@@ -60,7 +58,6 @@ def create_socket():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
-        print("entered")
         s.bind((SERVER, PORT))
     except socket.error as e:
         str(e)
@@ -86,11 +83,7 @@ def threaded_client(conn, account, player_num):
             in_room = True
         '''
 
-        print("added snake -------------------")
-        round.add_snake(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH))
-
         while not round.start:
-            # print("3.5, 18.5")
             pass
 
         print("round started")

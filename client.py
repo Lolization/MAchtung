@@ -19,15 +19,17 @@ def redraw_window(window):
 
 
 def in_lobby(screen, clock):
+    lobby = True
 
     def room_listener():
+        nonlocal lobby
         print("Supposed to send room thingy")
+        lobby = False
 
     room1 = Button(50, 50) \
         .set_text("Room #1") \
         .set_on_click_listener(room_listener)
 
-    lobby = True
     while lobby:
         screen.fill([0, 0, 0])
         events = pygame.event.get()
