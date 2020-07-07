@@ -28,7 +28,6 @@ def main():
     global round
     # create_players()
     # TODO - organize, annoy Termiland
-    round = Round()
 
     create_socket()
     player_amount = 0
@@ -36,21 +35,9 @@ def main():
         conn, address = s.accept()
         print("Connected to:", address)
 
-        account = Account("dori", "ohev kapara")
+        username, password = pickle.loads(conn.recv(2048))
+        account = Account(username, password)
         start_new_thread(threaded_client, (conn, account, player_amount))
-        player_amount += 1
-        round.add_snake(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH))
-
-        if player_amount == 2:
-            print("player amount is 2")
-            round.start = True
-            round.initialize()
-
-            for snake in round.snakes:
-                print("snake:")
-                print("x: ", snake.head.x)
-                print("y: ", snake.head.y)
-                print("color: ", snake.color)
 
 
 def create_socket():

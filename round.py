@@ -45,6 +45,13 @@ class Round:
 
     def start_game(self):
         self.start = True
+        self.initialize()
+
+        for snake in self.snakes:
+            print("snake:")
+            print("x: ", snake.head.x)
+            print("y: ", snake.head.y)
+            print("color: ", snake.color)
 
 
 def test():

@@ -95,8 +95,6 @@ class Snake:
             print("right wall")
             return True
         if self.head.x - self.head.radius <= 0:
-            print(self.head.x)
-            print(self.head.radius)
             print("left wall")
             return True
         if self.head.y + self.head.radius >= height:

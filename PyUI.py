@@ -102,7 +102,7 @@ class AbsTextView(View, ABC):
 		return self
 
 	def set_font_type(self, font):
-		self.text.font = ViewHandler.pygame.font.sysFont(font, self.size)
+		self.text.font = ViewHandler.pygame.font.sysFont(font, self.text.size)
 
 	def set_on_click_listener(self, listener):
 		self.on_click_listener = listener

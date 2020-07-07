@@ -13,14 +13,7 @@ class Network:
         self.server = SERVER
         self.port = PORT
         self.address = (self.server, self.port)
-        self.p = self.connect()
-
-    def get_players(self):
-        return self.p
-
-    def connect(self):
         self.client.connect(self.address)
-        return receive(self.client)
 
     def send(self, data):
         try:
