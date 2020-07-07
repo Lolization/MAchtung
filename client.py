@@ -1,5 +1,6 @@
 import pygame
 from network import Network
+import network
 
 # TODO - lose when bumping into the enemy
 
@@ -23,6 +24,11 @@ def main():
     global me, players
     run = True
     n = Network()
+    message = n.get_players()
+    while message is None:
+        print(message)
+        message = network.receive(n.client)
+        pass
     me, players = n.get_players()
     print("me: ", me)
     print("players: ", players)
@@ -32,6 +38,7 @@ def main():
     while run:
         clock.tick(60)
         heads = n.send(me.head)
+        print("heads: ", heads)
 
         # print('heads: ', heads)
         for i in range(len(players)):

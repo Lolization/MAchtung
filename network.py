@@ -1,11 +1,9 @@
 import socket
 import pickle
+from globe import *
 
 # TODO - massive amount of data needs to be received (entire list of points)
 # TODO - get_heads()
-
-SERVER = "10.0.0.28"
-PORT = 5555
 
 
 class Network:
