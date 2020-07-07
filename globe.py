@@ -4,7 +4,7 @@ import math
 SERVER = "10.0.0.11"
 PORT = 5555
 
-START_SPEED = 0.7
+START_SPEED = 1
 START_WIDTH = 8
 
 GAP_PROB = 0.003
