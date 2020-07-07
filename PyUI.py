@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import pygame
 
 
 class ViewHandler:
@@ -20,6 +21,27 @@ class ViewHandler:
 	def render_views(screen):
 		for view in ViewHandler.views:
 			view.draw(screen)
+
+
+class Color:
+	def __init__(self, r, g=None, b=None):
+		if isinstance(r, Color):  # r is Color
+			self.r = r.r
+			self.g = r.g
+			self.b = r.b
+		else:
+			self.r = r
+			self.g = g
+			self.b = b
+
+	def set_color(self, rgb):
+		self.r = rgb.r
+		self.g = rgb.g
+		self.b = rgb.b
+		return self
+
+	def to_arr(self):
+		return [self.r, self.g, self.b]
 
 
 class View(ABC):
@@ -50,9 +72,7 @@ class Text:
 
 		self.active = False
 		self.text = "Button"
-		self.r = 255
-		self.g = 255
-		self.b = 255
+		self.color = Color(255, 255, 255)
 		self.rainbow = False
 		self.font = ViewHandler.pygame.font.SysFont("David", 24)
 
@@ -63,10 +83,10 @@ class Text:
 		self.text = text
 
 	def set_color(self, rgb):
-		self.r, self.g, self.b = rgb
+		self.color = rgb
 
 	def draw(self, screen):
-		txt_surface = self.font.render(self.text, True, [self.r, self.g, self.b])
+		txt_surface = self.font.render(self.text, True, self.color.to_arr())
 		screen.blit(txt_surface, (self.x, self.y))
 
 		words = [word.split(' ') for word in self.text.splitlines()]  # 2D array where each row is a list of words.
@@ -75,7 +95,7 @@ class Text:
 		x, y = self.x, self.y
 		for line in words:
 			for word in line:
-				word_surface = self.font.render(word, 0, [self.r, self.g, self.b])
+				word_surface = self.font.render(word, 0, self.color.to_arr())
 				word_width, word_height = word_surface.get_size()
 				if x + word_width >= max_width:
 					x = self.x[0]  # Reset the x.
@@ -85,20 +105,6 @@ class Text:
 			x = self.x  # Reset the x.
 			y += word_height  # Start on new row.
 
-	def do_rainbow(self):
-		if self.r == 255 and self.b > 0:
-			self.b -= 1
-		elif self.r == 255 and self.g < 255:
-			self.g += 1
-		elif self.g == 255 and 0 < self.r:
-			self.r -= 1
-		elif self.g == 255 and self.b < 255:
-			self.b += 1
-		elif self.b == 255 and 0 < self.g:
-			self.g -= 1
-		elif self.b == 255 and self.r < 255:
-			self.r += 1
-
 
 class Button(View):
 
@@ -107,7 +113,11 @@ class Button(View):
 
 		self.active = False
 		self.w = 100
+
 		self.on_click_listener = None
+		self.on_right_click_listener = None
+		self.on_hover_listener = None
+
 		self.text = Text(x, y)
 		self.obj = ViewHandler.pygame.Rect(self.x, self.y, self.w, self.h)
 		self.border = 2
@@ -128,35 +138,30 @@ class Button(View):
 
 	def handle_events(self, pygame, events):
 		for event in events:
-			if event.type == pygame.MOUSEBUTTONDOWN:
-
-				# If the user clicked on the view.
+			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
-					self.on_click_listener(self)
+					if event.button == 1:  # Left click
+						self.on_click_listener(self)
+					elif event.button == 3:  # Right Click
+						self.on_right_click_listener(self)
 
-		if self.rainbow:
-			self.do_rainbow()
-
-			if self.text.rainbow:
-				self.text.do_rainbow()
+				# TODO: This scroll
+				if event.button == 4:  # Scroll Up
+					pass
+				if event.button == 5:  # Scroll Down
+					pass
 
 	def set_text(self, text):
 		self.text.set_text(text)
 
-	def do_rainbow(self):
-		if self.r == 255 and self.b > 0:
-			self.b -= 1
-		elif self.r == 255 and self.g < 255:
-			self.g += 1
-		elif self.g == 255 and 0 < self.r:
-			self.r -= 1
-		elif self.g == 255 and self.b < 255:
-			self.b += 1
-		elif self.b == 255 and 0 < self.g:
-			self.g -= 1
-		elif self.b == 255 and self.r < 255:
-			self.r += 1
-
 	def set_on_click_listener(self, listener):
 		self.on_click_listener = listener
+		return self
+
+	def set_on_right_click_listener(self, listener):
+		self.on_right_click_listener = listener
+		return self
+
+	def set_on_hover_listener(self, listener):
+		self.on_hover_listener = listener
 		return self
