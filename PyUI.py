@@ -63,6 +63,60 @@ class View(ABC):
 		pass
 
 
+class AbsTextView(View, ABC):
+	def __init__(self, x, y):
+		super().__init__(x, y)
+		self.text = Text(x + 5, y + 5)
+		self.w = 100
+
+		self.on_click_listener = None
+		self.on_right_click_listener = None
+		self.on_hover_listener = None
+
+		self.obj = ViewHandler.pygame.Rect(self.x, self.y, self.w, self.h)
+		self.border = 2
+		self.color = Color(255, 255, 255)
+		self.rainbow = False
+
+		self.text.rainbow = self.rainbow
+
+	def set_rainbow(self, is_rainbow):
+		self.rainbow = is_rainbow
+		self.text.rainbow = is_rainbow
+		return self
+
+	def draw(self, screen):
+		ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
+		self.text.draw(screen, self.w, self.h)
+		return self
+
+	def handle_events(self, pygame, events):
+		pass
+
+	def set_text(self, text):
+		self.text.set_text(text)
+		return self
+
+	def set_font_size(self, size):
+		self.text.set_font_size(size)
+		return self
+
+	def set_font_type(self, font):
+		self.text.font = ViewHandler.pygame.font.sysFont(font, self.size)
+
+	def set_on_click_listener(self, listener):
+		self.on_click_listener = listener
+		return self
+
+	def set_on_right_click_listener(self, listener):
+		self.on_right_click_listener = listener
+		return self
+
+	def set_on_hover_listener(self, listener):
+		self.on_hover_listener = listener
+		return self
+
+
 class Text:
 	def __init__(self, x=0, y=0):
 		self.x = x
@@ -74,7 +128,8 @@ class Text:
 		self.text = "Button"
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
-		self.font = ViewHandler.pygame.font.SysFont("David", 24)
+		self.size = 24
+		self.font = ViewHandler.pygame.font.SysFont("David", self.size)
 
 	def is_rainbow(self, is_rainbow):
 		self.rainbow = is_rainbow
@@ -83,7 +138,11 @@ class Text:
 		self.text = text
 
 	def set_font_size(self, size):
+		self.size = size
 		self.font = ViewHandler.pygame.font.SysFont("David", size)
+
+	def set_font_type(self, font):
+		self.text.font = ViewHandler.pygame.font.sysFont(font, self.size)
 
 	def set_color(self, rgb):
 		self.color = rgb
@@ -124,34 +183,36 @@ class Text:
 		self.color = Color(r, g, b)
 
 
-class Button(View):
+class TextView(AbsTextView):
+	pass
 
-	def __init__(self, x=0, y=0):
+
+class EditText(AbsTextView):
+	def __init__(self, x, y):
 		super().__init__(x, y)
-
 		self.active = False
-		self.w = 100
 
-		self.on_click_listener = None
-		self.on_right_click_listener = None
-		self.on_hover_listener = None
+	def handle_events(self, pygame, events):
+		for event in events:
+			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
+				if self.obj.collidepoint(event.pos):
+					self.active = True
+					keys = pygame.key.get_pressed()
 
-		self.text = Text(x + 5, y + 5)
-		self.obj = ViewHandler.pygame.Rect(self.x, self.y, self.w, self.h)
-		self.border = 2
-		self.color = Color(255, 255, 255)
-		self.rainbow = False
+				else:
+					self.active = False
 
-		self.text.rainbow = self.rainbow
+				# TODO: This scroll
+				if event.button == 4:  # Scroll Up
+					pass
+				if event.button == 5:  # Scroll Down
+					pass
 
-	def is_rainbow(self, is_rainbow):
-		self.rainbow = is_rainbow
-		self.text.rainbow = is_rainbow
+		if self.text.rainbow:
+			self.text.do_rainbow()
 
-	def draw(self, screen):
-		ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
-		self.text.draw(screen, self.w, self.h)
 
+class Button(AbsTextView):
 	def handle_events(self, pygame, events):
 		for event in events:
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
@@ -169,22 +230,3 @@ class Button(View):
 
 		if self.text.rainbow:
 			self.text.do_rainbow()
-
-	def set_text(self, text):
-		self.text.set_text(text)
-		return self
-
-	def set_font_size(self, size):
-		self.text.set_font_size(size)
-
-	def set_on_click_listener(self, listener):
-		self.on_click_listener = listener
-		return self
-
-	def set_on_right_click_listener(self, listener):
-		self.on_right_click_listener = listener
-		return self
-
-	def set_on_hover_listener(self, listener):
-		self.on_hover_listener = listener
-		return self

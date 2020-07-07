@@ -1,7 +1,7 @@
 import math
 
 
-SERVER = "10.0.0.11"
+SERVER = "10.0.0.28"
 PORT = 5555
 
 START_SPEED = 1
