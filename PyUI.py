@@ -82,6 +82,9 @@ class Text:
 	def set_text(self, text):
 		self.text = text
 
+	def set_font_size(self, size):
+		self.font = ViewHandler.pygame.font.SysFont("David", size)
+
 	def set_color(self, rgb):
 		self.color = rgb
 
@@ -170,6 +173,9 @@ class Button(View):
 	def set_text(self, text):
 		self.text.set_text(text)
 		return self
+
+	def set_font_size(self, size):
+		self.text.set_font_size(size)
 
 	def set_on_click_listener(self, listener):
 		self.on_click_listener = listener
