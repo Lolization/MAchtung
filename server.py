@@ -74,57 +74,56 @@ def create_players():
 
 def threaded_client(conn, account, player_num):
     global round, s
+    '''
+    in_room = False
+    while not in_room:
+        room_message = conn.recv(4096)
+        print(room_message.decode())
+        in_room = True
+    '''
+
+    while not round.start:
+        pass
+
+    print("round started")
+    # print("snakes: ", round.snakes)
+
+    initial_players = []
+    for i in range(len(round.snakes)):
+        if i != player_num:
+            initial_players.append(round.snakes[i])
+    message = (round.snakes[player_num], initial_players)
+    print(message)
+    conn.send(pickle.dumps(message))
+
     while True:
-        '''
-        in_room = False
-        while not in_room:
-            room_message = conn.recv(4096)
-            print(room_message.decode())
-            in_room = True
-        '''
-
-        while not round.start:
-            pass
-
-        print("round started")
-        # print("snakes: ", round.snakes)
-
-        initial_players = []
-        for i in range(len(round.snakes)):
-            if i != player_num:
-                initial_players.append(round.snakes[i])
-        message = (round.snakes[player_num], initial_players)
-        print(message)
-        conn.send(pickle.dumps(message))
-
-        while True:
-            try:
-                reply = []
-                head = pickle.loads(conn.recv(4096))
-                print('head: ', head)
-                if head == "lost":
-                    pygame.quit()
-                    break
-                round.snakes[player_num].add(head)
-
-                if not head:
-                    print("Disconnected")
-                    break
-                else:
-                    print(len(round.snakes))
-                    for i in range(len(round.snakes)):
-                        if i != player_num:
-                            print("entered")
-                            reply.append(round.snakes[i].head)
-                    print("Received: ", head)
-                    print("Sending : ", reply)
-
-                conn.sendall(pickle.dumps(reply))
-            except error as e:
+        try:
+            reply = []
+            head = pickle.loads(conn.recv(4096))
+            print('head: ', head)
+            if head == "lost":
+                pygame.quit()
                 break
+            round.snakes[player_num].add(head)
 
-        print("Lost connection")
-        conn.close()
+            if not head:
+                print("Disconnected")
+                break
+            else:
+                print(len(round.snakes))
+                for i in range(len(round.snakes)):
+                    if i != player_num:
+                        print("entered")
+                        reply.append(round.snakes[i].head)
+                print("Received: ", head)
+                print("Sending : ", reply)
+
+            conn.sendall(pickle.dumps(reply))
+        except error as e:
+            break
+
+    print("Lost connection")
+    conn.close()
 
 
 if __name__ == "__main__":

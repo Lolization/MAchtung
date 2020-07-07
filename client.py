@@ -63,18 +63,10 @@ def main():
         print(message)
         message = receive(n.client)
         pass
-    me, players = n.get_players()
+    me, players = message
     print("me: ", me)
     print("players: ", players)
-
-    in_round = False
-    while in_round:
-        run = True
-        n = Network()
-        me, players = n.get_players()
-        print("me: ", me)
-        print("players: ", players)
-        clock = pygame.time.Clock()
+    print(me.head.x)
 
     redraw_window(win)
     while run:
