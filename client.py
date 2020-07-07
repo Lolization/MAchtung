@@ -1,8 +1,6 @@
 import pygame
-from network import Network
-import network
-
-# TODO - lose when bumping into the enemy
+from network import *
+from PyUI import *
 
 WIDTH = 500
 HEIGHT = 500
@@ -20,19 +18,61 @@ def redraw_window(window):
     pygame.display.update()
 
 
+def in_lobby(screen, clock):
+
+    def room_listener():
+        print("Supposed to send room thingy")
+
+    room1 = Button(50, 50) \
+        .set_text("Room #1") \
+        .set_on_click_listener(room_listener)
+
+    lobby = True
+    while lobby:
+        screen.fill([0, 0, 0])
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                lobby = False
+                break
+
+        ViewHandler.handle_view_events(events)
+
+        ViewHandler.render_views(screen)
+        pygame.display.flip()
+        clock.tick(60)
+
+
 def main():
     global me, players
+
+    pygame.init()
+    ViewHandler.set_pygame(pygame)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    clock = pygame.time.Clock()
+
+    # Draw Main Menu while not in a room
+    in_lobby(screen, clock)
+
     run = True
     n = Network()
     message = n.get_players()
     while message is None:
         print(message)
-        message = network.receive(n.client)
+        message = receive(n.client)
         pass
     me, players = n.get_players()
     print("me: ", me)
     print("players: ", players)
-    clock = pygame.time.Clock()
+
+    in_round = False
+    while in_round:
+        run = True
+        n = Network()
+        me, players = n.get_players()
+        print("me: ", me)
+        print("players: ", players)
+        clock = pygame.time.Clock()
 
     redraw_window(win)
     while run:
@@ -69,4 +109,5 @@ def main():
         pygame.display.update()
 
 
-main()
+if __name__ == "__main__":
+    main()
