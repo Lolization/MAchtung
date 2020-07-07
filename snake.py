@@ -3,7 +3,6 @@ import math
 import random
 from random import choices
 
-# TODO - Ugly '-15' in the for loop in the lost method
 # TODO - Smoother GUI
 # TODO - GUI
 # TODO - Powers (like in curve fever)
