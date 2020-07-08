@@ -160,6 +160,7 @@ def main():
 	
 	n = Network()
 	n.send((username, password))
+	print('a')
 	
 	rooms = n.receive()
 	while rooms is None:
