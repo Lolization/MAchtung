@@ -9,7 +9,7 @@ from globe import *
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.settimeout(0.015)
+        self.client.settimeout(0.05)
         self.server = SERVER
         self.port = PORT
         self.address = (self.server, self.port)
@@ -18,25 +18,32 @@ class Network:
     def send(self, data):
         try:
             self.client.send(pickle.dumps(data))
+        except socket.error as e:
+            print(f"send {e}")
+
+    def receive(self):
+        try:
             return receive(self.client)
         except socket.error as e:
-            print(e)
+            print(f"recv {e}")
 
 
 def receive(client):
     reply = []
     try:
         while True:
-            packet = client.recv(1048)
+            packet = client.recv(2048)
             # print('packet: ', packet)
             if not packet:
                 break
             reply.append(packet)
     except socket.error as e:
-        pass
+        print(f"receive {e}")
+
     if not reply:
-        print('empty reply')
         return
+
     reply = b"".join(reply)
-    # print('reply: ', reply)
-    return pickle.loads(reply)
+    reply = pickle.loads(reply)
+
+    return reply

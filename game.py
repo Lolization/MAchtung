@@ -9,4 +9,5 @@ class Game:
             self.points[i] = 0
 
     def create_round(self):
-        new_round = Round()
+        new_round = Round(self.players)
+        return Round()
