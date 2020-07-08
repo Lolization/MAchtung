@@ -23,13 +23,13 @@ P1_COLOR = P2_COLOR = (20, 20, 20)
 rooms = []
 s = None
 lobby_conns = []
+room_cons = {}
 
 
 def main():
     # TODO - organize, annoy Termiland
 
     create_socket()
-    rooms.append(Room())
     while True:
         conn, address = s.accept()
         lobby_conns.append(conn)  # TODO: Email and pass thing verification

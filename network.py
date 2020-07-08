@@ -22,28 +22,21 @@ class Network:
             print(f"send {e}")
 
     def receive(self):
+        reply = []
         try:
-            return receive(self.client)
+            while True:
+                packet = self.client.recv(2048)
+                # print('packet: ', packet)
+                if not packet:
+                    break
+                reply.append(packet)
         except socket.error as e:
-            print(f"recv {e}")
+            print(f"receive {e}")
 
+        if not reply:
+            return
 
-def receive(client):
-    reply = []
-    try:
-        while True:
-            packet = client.recv(2048)
-            # print('packet: ', packet)
-            if not packet:
-                break
-            reply.append(packet)
-    except socket.error as e:
-        print(f"receive {e}")
+        reply = b"".join(reply)
+        reply = pickle.loads(reply)
 
-    if not reply:
-        return
-
-    reply = b"".join(reply)
-    reply = pickle.loads(reply)
-
-    return reply
+        return reply

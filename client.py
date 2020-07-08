@@ -90,7 +90,7 @@ def in_lobby(screen, clock, rooms):
 
 	i = 0
 	while lobby:
-		new_room = receive(n.client)
+		new_room = n.receive()
 		if new_room:
 			print("got room")
 			rooms.append(new_room)
@@ -161,7 +161,9 @@ def main():
 	n = Network()
 	n.send((username, password))
 
-	rooms = receive(n.client)
+	rooms = n.receive()
+	while rooms is None:
+		rooms = n.receive()
 
 	# Draw Main Menu while not in a room
 	in_lobby(screen, clock, rooms)
@@ -169,14 +171,14 @@ def main():
 	# Draw the room
 	in_room(screen, clock)
 
-	me, players = receive(n.client)
+	me, players = n.receive()
 	n.send("ready")
 
 	run = True
-	message = receive(n.client)
+	message = n.receive()
 	while message is None:
 		print(message)
-		message = receive(n.client)
+		message = n.receive()
 		pass
 	me, players = message
 	print("me: ", me)
