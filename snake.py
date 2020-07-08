@@ -139,6 +139,13 @@ class Snake:
                 break
             i += 1
 
+    def initialize(self, x, y, color):
+        self.color = color
+        self.head.x = x
+        self.head.y = y
+        self.head.color = color
+        self.body = [self.head]
+
 
 class Point:
     def __init__(self, x, y, radius, color):
