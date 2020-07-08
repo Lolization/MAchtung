@@ -11,6 +11,6 @@ class Game:
 	def create_round(self):
 		
 		for player in self.players:
-			player.snake
-		new_round = Round(self.players)
+			snake = player.create_snake()
+		new_round = Round()
 		return Round()
