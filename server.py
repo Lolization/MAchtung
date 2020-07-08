@@ -1,8 +1,8 @@
 import socket
 from _thread import *
+from typing import Union
 from snake import Snake
 import sys
-import pygame
 import pickle
 from room import Room
 from round import Round
@@ -20,98 +20,139 @@ from account import Account
 # TODO - create an .exe file
 
 P1_COLOR = P2_COLOR = (20, 20, 20)
-round = None
+rooms = []
 s = None
+lobby_conns = []
+room_cons = {}
 
 
 def main():
-    global round
-    # create_players()
-    # TODO - organize, annoy Termiland
-
-    create_socket()
-    player_amount = 0
-    while True:
-        conn, address = s.accept()
-        print("Connected to:", address)
-
-        username, password = pickle.loads(conn.recv(2048))
-        account = Account(username, password)
-        start_new_thread(threaded_client, (conn, account, player_amount))
+	# TODO - organize, annoy Termiland
+	
+	create_socket()
+	while True:
+		conn, address = s.accept()
+		lobby_conns.append(conn)  # TODO: Email and pass thing verification
+		print("Connected to:", address)
+		
+		username, password = pickle.loads(conn.recv(2048))
+		print(username, password)
+		conn.sendall(pickle.dumps(rooms))
+		# TODO: Check if account already exists (Wrong pass, get info, etc.)
+		account = Account(conn, username, password)
+		start_new_thread(threaded_client, (conn, account))
 
 
 def create_socket():
-    global s
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    try:
-        s.bind((SERVER, PORT))
-    except socket.error as e:
-        str(e)
-
-    s.listen(2)
-    print("Waiting for a connection, Server Started")
-
-
-def create_players():
-    snake1 = Snake((100, 100), P1_COLOR, START_SPEED, 0, START_WIDTH)
-    snake2 = Snake((250, 250), P2_COLOR, START_SPEED, 0, START_WIDTH)
-    snakes = [snake1, snake2]
+	global s
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	
+	try:
+		s.bind((SERVER, PORT))
+	except socket.error as e:
+		str(e)
+	
+	s.listen(2)
+	print("Waiting for a connection, Server Started")
 
 
-def threaded_client(conn, account, player_num):
-    global round, s
-    '''
-    in_room = False
-    while not in_room:
-        room_message = conn.recv(4096)
-        print(room_message.decode())
-        in_room = True
-    '''
+def get_room(iden):
+	for room in rooms:
+		if room.id == iden:
+			return room
+	
+	return None
 
-    while not round.start:
-        pass
 
-    print("round started")
-    # print("snakes: ", round.snakes)
+def create_room(acc):
+	new_room = Room().add_account(acc)
+	print(len(lobby_conns))
+	for con in lobby_conns:
+		con.sendall(pickle.dumps(new_room))
+	rooms.append(new_room)
+	room_cons[new_room.id] = []
+	print('a')
+	return new_room
 
-    initial_players = []
-    for i in range(len(round.snakes)):
-        if i != player_num:
-            initial_players.append(round.snakes[i])
-    message = (round.snakes[player_num], initial_players)
-    print(message)
-    conn.send(pickle.dumps(message))
 
-    while True:
-        try:
-            reply = []
-            data = pickle.loads(conn.recv(4096))
-            print('head: ', data)
-            if data == "lost":
-                pygame.quit()
-                break
-            round.snakes[player_num].add(data)
+def join_room(room_id, acc):
+	# type: (int, Account) -> Room
+	
+	room = get_room(room_id)
+	for account in room.accounts:  # type: Account
+		# account.con.sendall(pickle.dumps(acc))
+		pass
+	room.add_account(acc)
+	return room
 
-            if not data:
-                print("Disconnected")
-                break
-            else:
-                print(len(round.snakes))
-                for i in range(len(round.snakes)):
-                    if i != player_num:
-                        print("entered")
-                        reply.append(round.snakes[i].head)
-                print("Received: ", data)
-                print("Sending : ", reply)
 
-            conn.sendall(pickle.dumps(reply))
-        except error as e:
-            break
-
-    print("Lost connection")
-    conn.close()
+def threaded_client(conn, account):
+	global s
+	room = None  # type: Union[None, Room]
+	
+	lobby = True
+	while lobby:
+		msg = pickle.loads(conn.recv(4096))
+		if msg:
+			print(msg)
+			action, room_id = msg
+			if action == "Join":
+				room = join_room(room_id, account)
+				lobby = False
+			elif action == "Create":
+				print("create room gever")
+				room = create_room(account)
+				lobby = False
+			
+			else:
+				print("PLEASE HELP ME")
+	
+	lobby_conns.remove(conn)
+	
+	while not room.running:
+		pass
+	
+	print("round started")
+	player_num = account.room.accounts.index(account)
+	current_round = room.game.create_round()
+	
+	initial_players = []
+	for i in range(len(current_round.snakes)):
+		if i != player_num:
+			initial_players.append(current_round.snakes[i])
+	message = (current_round.snakes[player_num], initial_players)
+	print(message)
+	conn.send(pickle.dumps(message))
+	
+	while True:
+		try:
+			reply = []
+			data = pickle.loads(conn.recv(4096))
+			print('head: ', data)
+			if data == "lost":
+				break
+			current_round.snakes[player_num].add(data)
+			
+			if not data:
+				print("Disconnected")
+				break
+			else:
+				print(len(current_round.snakes))
+				for i in range(len(current_round.snakes)):
+					if i != player_num:
+						print("entered")
+						reply.append(current_round.snakes[i].head)
+				print("Received: ", data)
+				print("Sending : ", reply)
+			
+			conn.sendall(pickle.dumps(reply))
+		except error as e:
+			print(e)
+			break
+	
+	print("Lost connection")
+	conn.close()
 
 
 if __name__ == "__main__":
-    main()
+	main()

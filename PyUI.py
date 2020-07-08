@@ -242,9 +242,9 @@ class Button(AbsTextView):
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
 					if event.button == 1:  # Left click
-						self.on_click_listener()
+						self.on_click_listener(self)
 					if event.button == 3:  # Right Click
-						self.on_right_click_listener()
+						self.on_right_click_listener(self)
 
 				# TODO: This scroll
 				if event.button == 4:  # Scroll Up
