@@ -1,14 +1,20 @@
+from typing import List, Union
+
 import pygame
+
+from account import Account
 from network import *
 from PyUI import *
 import pickle
 from globe import *
+from player import Player
+from room import Room
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Client")
 players = []
 me = None
-n = None
+n = None  # type: Union[None, Network]
 
 
 def redraw_window(window):
@@ -21,7 +27,7 @@ def redraw_window(window):
 
 def in_login(screen, clock):
 	login = True
-
+	
 	def login_listener(view):
 		nonlocal login
 		print("Supposed to send username & password thingy")
@@ -34,7 +40,7 @@ def in_login(screen, clock):
 	username = EditText(150, 150, 200, 50) \
 		.set_text("Username") \
 		.set_draw_frame(True)
-
+	
 	password = EditText(150, 250, 200, 50) \
 		.set_text("Password") \
 		.set_draw_frame(True)
@@ -43,7 +49,7 @@ def in_login(screen, clock):
 		.set_text("Login!") \
 		.set_on_click_listener(login_listener) \
 		.set_rainbow(True)
-
+	
 	while login:
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
@@ -52,48 +58,61 @@ def in_login(screen, clock):
 				login = False
 				pygame.quit()
 				break
-
+		
 		ViewHandler.handle_view_events(events)
-
+		
 		ViewHandler.render_views(screen)
 		pygame.display.update()
 		clock.tick(60)
-
+	
 	return username.text.text, password.text.text
 
 
 def in_lobby(screen, clock, rooms):
+	# type: (pygame.display, pygame.time.Clock, List[Room]) -> Union[None, Room]
 	lobby = True
+	data = None
 	ViewHandler.clear_views()
-
+	
 	def new_room_listener(view):
 		nonlocal lobby
-		n.send(("Create", 0))
+		nonlocal data
+		
+		new_room_created = Room()
+		n.send(("Create", new_room_created))
+		data = new_room_created, []
 		lobby = False
-
+	
 	def room_listener(view):
 		nonlocal lobby
+		nonlocal data
+		
 		print("Supposed to send room thingy")
 		room_num = btns.index(view)
 		room_id = rooms[room_num].id
 		n.send(("Join", room_id))
+		
+		accs = n.receive()
+		while accs is None:
+			accs = n.receive()
+		
+		data = rooms[room_num], accs
 		lobby = False
-
+	
 	title = TextView(WIDTH / 2 - 50, 50, 100) \
 		.set_text("MAAchtung")
-
+	
 	btns = []
-
-	print(len(rooms))
+	
 	for i, room in enumerate(rooms):
-		btns.append(Button(WIDTH / 2 - 50, 250 + (i * 75), 100)
+		btns.append(Button(WIDTH / 2 - 150, 250 + (i * 75), 300)
 		            .set_text(f"Room #{room.id}")
 		            .set_on_click_listener(room_listener))
-
-	create_room_btn = Button(WIDTH / 4, 250) \
+	
+	create_room_btn = Button(WIDTH / 4, 400, 150) \
 		.set_text("Create A Room Buddy!") \
 		.set_on_click_listener(new_room_listener)
-
+	
 	i = 0
 	while lobby:
 		new_room = n.receive()
@@ -103,7 +122,7 @@ def in_lobby(screen, clock, rooms):
 			btns.append(Button(WIDTH / 2 - 50, 250 + ((len(rooms) - 1) * 75), 100)
 			            .set_text(f"Room #{new_room.id}")
 			            .set_on_click_listener(room_listener))
-
+		
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
 		for event in events:
@@ -111,42 +130,62 @@ def in_lobby(screen, clock, rooms):
 				lobby = False
 				pygame.quit()
 				break
-
+		
 		for k in range(i):
 			pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 20 + (k * 5)), 120), 2)
 		ViewHandler.handle_view_events(events)
-
+		
 		ViewHandler.render_views(screen)
 		pygame.display.flip()
 		clock.tick(7)
 		i += 1
 		i %= 5
+	
+	return data
 
 
-def in_room(screen, clock):
+def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, accounts: List[Account]) -> None:
 	ViewHandler.clear_views()
+	print("in here")
 	room = True
-
+	
 	def game_listener(view):
 		nonlocal room
 		room = False
-
-	play = Button(WIDTH / 2 - 25, 50) \
+	
+	play = Button(WIDTH / 2 - 150, 50, 300) \
 		.set_text("Ya wanna play boi?") \
 		.set_on_click_listener(game_listener)
-
+	
+	MyTextView = TextView(50, 150, 200).set_text(my_acc.username)
+	
+	accounts_display = []  # type: List[TextView]
+	
+	print(len(players))
+	for i, acc in enumerate(players):  # type: int, Account
+		accounts_display.append(TextView(WIDTH / 2 - 150, 250 + (i * 75), 300)
+		            .set_text(acc.username))
+	
 	while room:
+		new_account = n.receive()  # type: Account
+		if new_account:
+			print("got another acc")
+			accounts.append(new_account)
+			accounts_display.append(Button(WIDTH / 2 - 50, 250 + ((len(accounts) - 1) * 75), 100)
+			            .set_text(new_account.username)
+			            .set_on_click_listener(game_listener))
+		
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
-
+		
 		for event in events:
 			if event.type == pygame.QUIT:
 				lobby = False
 				pygame.quit()
 				break
-
+		
 		ViewHandler.handle_view_events(events)
-
+		
 		ViewHandler.render_views(screen)
 		pygame.display.update()
 		clock.tick(60)
@@ -154,32 +193,35 @@ def in_room(screen, clock):
 
 def main():
 	global me, players, n
-
+	
 	pygame.init()
 	ViewHandler.set_pygame(pygame)
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	clock = pygame.time.Clock()
 	pygame.display.set_caption("MAAAAAAAAAAAAchtung")
-
+	
 	# Draw Log-in and Register while not connected
 	username, password = in_login(screen, clock)
-
+	
 	n = Network()
 	n.send((username, password))
-
-	rooms = n.receive()
-	while rooms is None:
-		rooms = n.receive()
-
+	
+	data = n.receive()
+	while data is None:
+		data = n.receive()
+	
+	my_acc, rooms = data
+	
 	# Draw Main Menu while not in a room
-	in_lobby(screen, clock, rooms)
-
+	room, accs = in_lobby(screen, clock, rooms)
+	print(1234)
+	
 	# Draw the room
-	in_room(screen, clock)
-
+	in_room(screen, clock, my_acc, accs)
+	
 	me, players = n.receive()
 	n.send("ready")
-
+	
 	run = True
 	message = n.receive()
 	while message is None:
@@ -189,32 +231,32 @@ def main():
 	me, players = message
 	print("me: ", me)
 	print("players: ", players)
-
+	
 	redraw_window(win)
 	while run:
 		clock.tick(60)
 		heads = n.send(me.head)
 		print("heads: ", heads)
-
+		
 		# print('heads: ', heads)
 		for i in range(len(players)):
 			player = players[i]
 			head = heads[i]
 			player.add(head)
-
+		
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
 				print("quit")
 				pygame.quit()
-
+		
 		for player in players + [me]:
 			for head in heads + [me.head]:
 				if player.lost(head, win):
 					print("lost")
 					n.send("lost")
 					run = False
-
+		
 		me.move()
 		# redraw_window(win)
 		for head in heads + [me.head]:

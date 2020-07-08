@@ -1,7 +1,7 @@
 import math
 
 # Connections
-SERVER = "10.0.0.28"
+SERVER = "10.0.0.11"
 PORT = 5555
 
 # Snake initializations
@@ -13,7 +13,6 @@ GAP_PROB = 0.003
 WIDTH = HEIGHT = 500
 BACKGROUND_COLOR = (107, 15, 93)  # Deep Purple
 FONT_SIZE = 64
-
 
 def rad_to_degree(rads):
     return rads / (180 / math.pi)

@@ -37,9 +37,11 @@ def main():
 		
 		username, password = pickle.loads(conn.recv(2048))
 		print(username, password)
-		conn.sendall(pickle.dumps(rooms))
 		# TODO: Check if account already exists (Wrong pass, get info, etc.)
 		account = Account(conn, username, password)
+		print(account)
+		print(rooms)
+		conn.sendall(pickle.dumps((account, rooms)))
 		start_new_thread(threaded_client, (conn, account))
 
 
@@ -64,23 +66,24 @@ def get_room(iden):
 	return None
 
 
-def create_room(con, acc):
-	new_room = Room().add_account(acc)
+def create_room(con, acc, room):
+	new_room = room.add_account(acc)
 	lobby_conns.remove(con)
 	for con in lobby_conns:
 		con.sendall(pickle.dumps(new_room))
+	con.sendall(pickle.dumps([]))
 	rooms.append(new_room)
 	room_cons[new_room.id] = [con]
 	return new_room
 
 
-def join_room(room_id, acc):
-	# type: (int, Account) -> Room
+def join_room(connection, acc, room_id):
+	# type: (socket, Account, int) -> Room
 	
-	room = get_room(room_id)
+	room = get_room(room_id)  # type: Room
 	for con in room_cons[room_id]:  # type: socket
 		con.sendall(pickle.dumps(acc))
-		pass
+	connection.sendall(pickle.dumps(room.accounts))
 	room.add_account(acc)
 	return room
 
@@ -96,15 +99,17 @@ def threaded_client(conn, account):
 			print(msg)
 			action, room_id = msg
 			if action == "Join":
-				room = join_room(room_id, account)
+				room = join_room(conn, account, room_id)
 				lobby = False
 			elif action == "Create":
 				print("create room gever")
-				room = create_room(conn, account)
+				room = create_room(conn, account, room_id)
 				lobby = False
 			
 			else:
 				print("PLEASE HELP ME")
+	
+	pickle.dumps(room.accounts)
 	
 	while not room.running:
 		pass
