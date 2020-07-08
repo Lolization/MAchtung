@@ -13,13 +13,13 @@ class Round:
 		self.amount = len(self.snakes)
 		self.score = {}
 		self.start = False
-	
+
 	def add_snake(self, snake):
 		self.snakes.append(snake)
 		self.player_id[snake] = self.amount
 		self.score[snake] = 0
 		self.amount += 1
-	
+
 	def initialize(self):
 		center = (WIDTH / 2, HEIGHT / 2)
 		alpha = 0
@@ -39,14 +39,14 @@ class Round:
 			for k in range(len(color)):
 				color[k] += int(255 / self.amount)
 				color[k] %= 255
-	
+
 	def add_score(self, player, addition):
 		self.score[player] += addition
-	
+
 	def start_game(self):
 		self.start = True
 		self.initialize()
-		
+
 		for snake in self.snakes:
 			print("snake:")
 			print("x: ", snake.head.x)
@@ -55,21 +55,21 @@ class Round:
 
 
 def test():
-	window = pygame.display.set_mode((500, 500))
-	snakes = [Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH) for i in range(7)]
-	round = Round()
-	for i in range(2):
-		round.add_snake(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH))
-	print("amount: ", round.amount)
-	round.initialize()
-	
-	window.fill((255, 255, 255))
-	for player in round.snakes:
-		player.draw(pygame.display.get_surface())
-	pygame.display.update()
-	for player in round.snakes:
-		print('x: ', player.head.x, ' y: ', player.head.y, ' color: ', player.color)
-	time.sleep(10)
+    window = pygame.display.set_mode((500, 500))
+    snakes = [Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH) for i in range(7)]
+    round = Round()
+    for i in range(2):
+        round.add_snake(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH))
+    print("amount: ", round.amount)
+    round.initialize()
+
+    window.fill(BACKGROUND_COLOR)
+    for player in round.snakes:
+        player.draw(pygame.display.get_surface())
+    pygame.display.update()
+    for player in round.snakes:
+        print('x: ', player.head.x, ' y: ', player.head.y, ' color: ', player.color)
+    time.sleep(10)
 
 
 if __name__ == "__main__":

@@ -96,6 +96,7 @@ class AbsTextView(View, ABC):
 		self.border = 2
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
+		self.frame = False
 
 		self.text.rainbow = self.rainbow
 
@@ -105,7 +106,8 @@ class AbsTextView(View, ABC):
 		return self
 
 	def draw(self, screen):
-		ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
+		if self.frame:
+			ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
 		self.text.draw(screen, self.w, self.h)
 		return self
 
@@ -121,7 +123,7 @@ class AbsTextView(View, ABC):
 		return self
 
 	def set_font_type(self, font):
-		self.text.font = ViewHandler.pygame.font.sysFont(font, self.text.size)
+		self.text.font = ViewHandler.pygame.font.sysFont(font, self.text.font_size)
 
 	def set_on_click_listener(self, listener):
 		self.on_click_listener = listener
@@ -135,6 +137,10 @@ class AbsTextView(View, ABC):
 		self.on_hover_listener = listener
 		return self
 
+	def set_draw_frame(self, frame):
+		self.frame = frame
+		return self
+
 
 class Text:
 	def __init__(self, x=0, y=0):
@@ -144,11 +150,13 @@ class Text:
 		self.h = 50
 
 		self.active = False
-		self.text = "Button"
+		self.text = "Text"
+		self.length = len(self.text)
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
-		self.size = 24
-		self.font = ViewHandler.pygame.font.SysFont("David", self.size)
+		self.font_size = 24
+		self.font_type = "David"
+		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
 
 	def is_rainbow(self, is_rainbow):
 		self.rainbow = is_rainbow
@@ -157,32 +165,25 @@ class Text:
 		self.text = text
 
 	def set_font_size(self, size):
-		self.size = size
+		self.font_size = size
 		self.font = ViewHandler.pygame.font.SysFont("David", size)
 
-	def set_font_type(self, font):
-		self.text.font = ViewHandler.pygame.font.sysFont(font, self.size)
+	def set_font_type(self, type):
+		self.font_type = type
+		self.text.font = ViewHandler.pygame.font.sysFont(self.font_type, self.font_size)
 
 	def set_color(self, rgb):
 		self.color = rgb
 
 	def draw(self, screen, width, height):
-		lines = 1
-		words = [line.split() for line in self.text.splitlines()]  # 2D array where each row is a list of words.
-		space = self.font.size(' ')[0]  # The width of a space.
 		x, y = self.x, self.y
-		for line in words:
-			for word in line:
-				word_surface = self.font.render(word, 0, self.color.to_arr())
-				word_width, word_height = word_surface.get_size()
-				if x + word_width > width:
-					x = self.x  # Reset the x.
-					y += word_height  # Start on new row.
-					lines += 1
-				screen.blit(word_surface, (x, y))
-				x += word_width + space
-			x = self.x  # Reset the x.
-			y += word_height  # Start on new row.
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		word_width, word_height = word_surface.get_size()
+		while word_width > width:
+			self.set_font_size(self.font_size - 1)
+			word_surface = self.font.render(self.text, 0, self.color.to_arr())
+			word_width, word_height = word_surface.get_size()
+		screen.blit(word_surface, (x, y))
 
 	def do_rainbow(self):
 		r, g, b = self.color.to_arr()
@@ -237,6 +238,10 @@ class EditText(AbsTextView):
 
 
 class Button(AbsTextView):
+	def __init__(self, x, y, w=50, h=50):
+		super().__init__(x, y)
+		self.set_draw_frame(True)
+
 	def handle_events(self, pygame, events):
 		for event in events:
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
