@@ -1,14 +1,15 @@
 import math
 
-
+# Connections
 SERVER = "10.0.0.28"
 PORT = 5555
 
+# Snake initializations
 START_SPEED = 1
 START_WIDTH = 8
-
 GAP_PROB = 0.003
 
+# Pygame Graphics
 WIDTH = HEIGHT = 500
 
 
