@@ -2,9 +2,8 @@ import pygame
 from network import *
 from PyUI import *
 import pickle
+from globe import *
 
-WIDTH = 500
-HEIGHT = 500
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Client")
 players = []
@@ -64,10 +63,14 @@ def in_lobby(screen, clock):
         print("Supposed to send room thingy")
         lobby = False
 
-    room1 = Button(50, 50) \
+    title = TextView(WIDTH / 2 - 50, 50) \
+        .set_text("MAAchtung")
+
+    room1 = Button(WIDTH / 2 - 50, 250) \
         .set_text("Room #1") \
         .set_on_click_listener(room_listener)
 
+    i = 0
     while lobby:
         screen.fill([0, 0, 0])
         events = pygame.event.get()
@@ -77,11 +80,15 @@ def in_lobby(screen, clock):
                 pygame.quit()
                 break
 
+        for k in range(i):
+            pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 20 + (k * 5)), 120), 2)
         ViewHandler.handle_view_events(events)
 
         ViewHandler.render_views(screen)
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(7)
+        i += 1
+        i %= 5
 
 
 def main():
@@ -93,16 +100,17 @@ def main():
     clock = pygame.time.Clock()
 
     # Draw Log-in and Register while not connected
-    username, password = in_login(screen, clock)
-    print(username)
-    print(password)
+    # username, password = in_login(screen, clock)
+    # print(username)
+    # print(password)
 
-    n = Network()
-    n.send(pickle.dumps((username, password)))
 
     # Draw Main Menu while not in a room
     in_lobby(screen, clock)
 
+    n = Network()
+    receive(n.client)
+    # n.send(pickle.dumps((username, password)))
     run = True
     message = receive(n.client)
     while message is None:
