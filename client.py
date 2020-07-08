@@ -64,10 +64,10 @@ def in_lobby(screen, clock):
         print("Supposed to send room thingy")
         lobby = False
 
-    title = TextView(WIDTH / 2 - 25, 50) \
+    title = TextView(WIDTH / 2 - 50, 50, 100) \
         .set_text("MAAchtung")
 
-    room1 = Button(WIDTH / 2 - 25, 250) \
+    room1 = Button(WIDTH / 2 - 50, 250, 100) \
         .set_text("Room #1") \
         .set_on_click_listener(room_listener)
 
@@ -141,8 +141,10 @@ def main():
     in_room(screen, clock)
 
     n = Network()
-    receive(n.client)
-    # n.send(pickle.dumps((username, password)))
+    me, players = receive(n.client)
+    n.send(pickle.dumps((username, password)))
+    n.send("ready")
+
     run = True
     message = receive(n.client)
     while message is None:

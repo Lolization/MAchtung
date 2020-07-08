@@ -2,7 +2,6 @@ import socket
 from _thread import *
 from snake import Snake
 import sys
-import pygame
 import pickle
 from room import Room
 from round import Round
@@ -36,6 +35,7 @@ def main():
         print("Connected to:", address)
 
         username, password = pickle.loads(conn.recv(2048))
+        # TODO: Check if account already exists (Wrong pass, get older, etc.)
         account = Account(username, password)
         start_new_thread(threaded_client, (conn, account, player_amount))
 
@@ -53,14 +53,8 @@ def create_socket():
     print("Waiting for a connection, Server Started")
 
 
-def create_players():
-    snake1 = Snake((100, 100), P1_COLOR, START_SPEED, 0, START_WIDTH)
-    snake2 = Snake((250, 250), P2_COLOR, START_SPEED, 0, START_WIDTH)
-    snakes = [snake1, snake2]
-
-
 def threaded_client(conn, account, player_num):
-    global round, s
+    global s
     '''
     in_room = False
     while not in_room:
@@ -89,7 +83,6 @@ def threaded_client(conn, account, player_num):
             data = pickle.loads(conn.recv(4096))
             print('head: ', data)
             if data == "lost":
-                pygame.quit()
                 break
             round.snakes[player_num].add(data)
 
