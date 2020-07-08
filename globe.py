@@ -12,7 +12,7 @@ GAP_PROB = 0.003
 # Pygame Graphics
 WIDTH = HEIGHT = 500
 BACKGROUND_COLOR = (107, 15, 93)  # Deep Purple
-
+FONT_SIZE = 64
 
 
 def rad_to_degree(rads):

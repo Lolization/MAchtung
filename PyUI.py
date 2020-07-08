@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import pygame
+from globe import *
 
 
 class ViewHandler:
@@ -20,6 +21,8 @@ class ViewHandler:
 	@staticmethod
 	def render_views(screen):
 		for view in ViewHandler.views:
+			if issubclass(view.__class__, AbsTextView):
+				view.update()
 			view.draw(screen)
 
 	@staticmethod
@@ -111,6 +114,10 @@ class AbsTextView(View, ABC):
 		self.text.draw(screen, self.w, self.h)
 		return self
 
+	def update(self):
+		self.text.update(self.w, self.h)
+		self.text.center(self.x, self.y, self.w, self.h)
+
 	def handle_events(self, pygame, events):
 		pass
 
@@ -154,7 +161,7 @@ class Text:
 		self.length = len(self.text)
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
-		self.font_size = 24
+		self.font_size = FONT_SIZE
 		self.font_type = "David"
 		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
 
@@ -163,6 +170,10 @@ class Text:
 
 	def set_text(self, text):
 		self.text = text
+
+	def get_pixel_size(self):
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		return word_surface.get_size()
 
 	def set_font_size(self, size):
 		self.font_size = size
@@ -178,12 +189,21 @@ class Text:
 	def draw(self, screen, width, height):
 		x, y = self.x, self.y
 		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		screen.blit(word_surface, (x, y))
+
+	def update(self, width, height):
+		self.set_font_size(FONT_SIZE)
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
 		word_width, word_height = word_surface.get_size()
-		while word_width > width:
+		while word_width * 1.7 > width:
 			self.set_font_size(self.font_size - 1)
 			word_surface = self.font.render(self.text, 0, self.color.to_arr())
 			word_width, word_height = word_surface.get_size()
-		screen.blit(word_surface, (x, y))
+
+	def center(self, x, y, width, height):
+		text_width, text_height = self.get_pixel_size()
+		self.x = x + int((width - text_width) / 2)
+		self.y = y + int((height - text_height) / 2)
 
 	def do_rainbow(self):
 		r, g, b = self.color.to_arr()
@@ -239,7 +259,7 @@ class EditText(AbsTextView):
 
 class Button(AbsTextView):
 	def __init__(self, x, y, w=50, h=50):
-		super().__init__(x, y)
+		super().__init__(x, y, w, h)
 		self.set_draw_frame(True)
 
 	def handle_events(self, pygame, events):
