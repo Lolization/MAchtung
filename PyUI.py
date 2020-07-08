@@ -111,7 +111,7 @@ class AbsTextView(View, ABC):
 	def draw(self, screen):
 		if self.frame:
 			ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
-		self.text.draw(screen, self.w, self.h)
+		self.text.draw(screen)
 		return self
 
 	def update(self):
@@ -130,7 +130,7 @@ class AbsTextView(View, ABC):
 		return self
 
 	def set_font_type(self, font):
-		self.text.font = ViewHandler.pygame.font.sysFont(font, self.text.font_size)
+		self.text.set_font_type(font)
 
 	def set_on_click_listener(self, listener):
 		self.on_click_listener = listener
@@ -177,16 +177,16 @@ class Text:
 
 	def set_font_size(self, size):
 		self.font_size = size
-		self.font = ViewHandler.pygame.font.SysFont("David", size)
+		self.font = ViewHandler.pygame.font.SysFont(self.font_type, size)
 
 	def set_font_type(self, type):
 		self.font_type = type
-		self.text.font = ViewHandler.pygame.font.sysFont(self.font_type, self.font_size)
+		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
 
 	def set_color(self, rgb):
 		self.color = rgb
 
-	def draw(self, screen, width, height):
+	def draw(self, screen):
 		x, y = self.x, self.y
 		word_surface = self.font.render(self.text, 0, self.color.to_arr())
 		screen.blit(word_surface, (x, y))
@@ -195,7 +195,7 @@ class Text:
 		self.set_font_size(FONT_SIZE)
 		word_surface = self.font.render(self.text, 0, self.color.to_arr())
 		word_width, word_height = word_surface.get_size()
-		while word_width * 1.7 > width:
+		while word_width * 1.7 > width or word_height * 1.7 > height:
 			self.set_font_size(self.font_size - 1)
 			word_surface = self.font.render(self.text, 0, self.color.to_arr())
 			word_width, word_height = word_surface.get_size()

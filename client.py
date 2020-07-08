@@ -27,6 +27,10 @@ def in_login(screen, clock):
 		print("Supposed to send username & password thingy")
 		login = False
 
+	title = TextView(150, 50, 250, 60) \
+		.set_text("Achtung") \
+		.set_font_type("Courier New")
+
 	username = EditText(150, 150, 200, 50) \
 		.set_text("Username") \
 		.set_draw_frame(True)
@@ -35,7 +39,7 @@ def in_login(screen, clock):
 		.set_text("Password") \
 		.set_draw_frame(True)
 
-	login_btn = Button(200, 350, 100, 50) \
+	login_btn = Button(350, 400, 100, 50) \
 		.set_text("Login!") \
 		.set_on_click_listener(login_listener) \
 		.set_rainbow(True)
