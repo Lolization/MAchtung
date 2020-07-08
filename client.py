@@ -15,7 +15,6 @@ def redraw_window(window):
     for player in players:
         player.draw(window)
     me.draw(window)
-    me.draw(window)
     pygame.display.update()
 
 

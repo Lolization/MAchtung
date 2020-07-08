@@ -86,14 +86,14 @@ def threaded_client(conn, account, player_num):
     while True:
         try:
             reply = []
-            head = pickle.loads(conn.recv(4096))
-            print('head: ', head)
-            if head == "lost":
+            data = pickle.loads(conn.recv(4096))
+            print('head: ', data)
+            if data == "lost":
                 pygame.quit()
                 break
-            round.snakes[player_num].add(head)
+            round.snakes[player_num].add(data)
 
-            if not head:
+            if not data:
                 print("Disconnected")
                 break
             else:
@@ -102,7 +102,7 @@ def threaded_client(conn, account, player_num):
                     if i != player_num:
                         print("entered")
                         reply.append(round.snakes[i].head)
-                print("Received: ", head)
+                print("Received: ", data)
                 print("Sending : ", reply)
 
             conn.sendall(pickle.dumps(reply))
