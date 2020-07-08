@@ -25,6 +25,13 @@ def redraw_window(window):
 	pygame.display.update()
 
 
+def is_everyone_ready(accounts):
+	for acc in accounts:
+		if not acc.ready:
+			return False
+	return True
+
+
 def in_login(screen, clock):
 	login = True
 	
@@ -137,7 +144,7 @@ def in_lobby(screen, clock, rooms):
 		
 		ViewHandler.render_views(screen)
 		pygame.display.flip()
-		clock.tick(7)
+		clock.tick(60)
 		i += 1
 		i %= 5
 	
@@ -146,41 +153,49 @@ def in_lobby(screen, clock, rooms):
 
 def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, accounts: List[Account]) -> None:
 	ViewHandler.clear_views()
-	print("in here")
 	room = True
+	sent_ready = False
 	
 	def game_listener(view):
 		nonlocal room
-		room = False
+		nonlocal sent_ready
+		
+		if not sent_ready:
+			n.send("ready")
+			sent_ready = True
 	
 	play = Button(WIDTH / 2 - 150, 50, 300) \
-		.set_text("Ya wanna play boi?") \
+		.set_text("Ready") \
 		.set_on_click_listener(game_listener)
 	
 	MyTextView = TextView(50, 150, 200).set_text(my_acc.username)
 	
 	accounts_display = []  # type: List[TextView]
 	
-	print(len(players))
-	for i, acc in enumerate(players):  # type: int, Account
-		accounts_display.append(TextView(WIDTH / 2 - 150, 250 + (i * 75), 300)
+	print(len(accounts))
+	for i, acc in enumerate(accounts):  # type: int, Account
+		accounts_display.append(TextView(WIDTH / 2, 200 + (i * 50), 300)
 		            .set_text(acc.username))
 	
 	while room:
-		new_account = n.receive()  # type: Account
-		if new_account:
-			print("got another acc")
-			accounts.append(new_account)
-			accounts_display.append(Button(WIDTH / 2 - 50, 250 + ((len(accounts) - 1) * 75), 100)
-			            .set_text(new_account.username)
-			            .set_on_click_listener(game_listener))
+		data = n.receive()
+		if data:
+			if type(data) == Account:
+				new_account = data
+				print("got another acc")
+				accounts.append(new_account)
+				accounts_display.append(TextView(WIDTH / 2, 200 + ((len(accounts) - 1) * 50), 300)
+				            .set_text(new_account.username))
+			else:
+				if data == "ready":
+					room = False
 		
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
 		
 		for event in events:
 			if event.type == pygame.QUIT:
-				lobby = False
+				room = False
 				pygame.quit()
 				break
 		
@@ -214,13 +229,14 @@ def main():
 	
 	# Draw Main Menu while not in a room
 	room, accs = in_lobby(screen, clock, rooms)
-	print(1234)
 	
 	# Draw the room
 	in_room(screen, clock, my_acc, accs)
+
+	while not room.running:  # Wait for everyone to say "ready"
+		pass
 	
 	me, players = n.receive()
-	n.send("ready")
 	
 	run = True
 	message = n.receive()

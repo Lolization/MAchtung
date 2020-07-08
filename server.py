@@ -66,14 +66,14 @@ def get_room(iden):
 	return None
 
 
-def create_room(con, acc, room):
+def create_room(connection, acc, room):
 	new_room = room.add_account(acc)
-	lobby_conns.remove(con)
+	lobby_conns.remove(connection)
 	for con in lobby_conns:
 		con.sendall(pickle.dumps(new_room))
-	con.sendall(pickle.dumps([]))
+	connection.sendall(pickle.dumps([]))
 	rooms.append(new_room)
-	room_cons[new_room.id] = [con]
+	room_cons[new_room.id] = [connection]
 	return new_room
 
 
@@ -83,6 +83,7 @@ def join_room(connection, acc, room_id):
 	room = get_room(room_id)  # type: Room
 	for con in room_cons[room_id]:  # type: socket
 		con.sendall(pickle.dumps(acc))
+	print(room.accounts)
 	connection.sendall(pickle.dumps(room.accounts))
 	room.add_account(acc)
 	return room
@@ -102,20 +103,31 @@ def threaded_client(conn, account):
 				room = join_room(conn, account, room_id)
 				lobby = False
 			elif action == "Create":
-				print("create room gever")
 				room = create_room(conn, account, room_id)
 				lobby = False
 			
 			else:
 				print("PLEASE HELP ME")
 	
-	pickle.dumps(room.accounts)
+	msg = pickle.loads(conn.recv(1024))
+	while msg is None:
+		msg = pickle.loads(conn.recv(1024))
+	
+	if msg == "ready":
+		account.ready = True
+		if room.is_ready():
+			for con in room_cons[room.id]:
+				con.sendall(pickle.dumps("ready"))
+			room.running = True
 	
 	while not room.running:
 		pass
 	
 	print("round started")
-	player_num = account.room.accounts.index(account)
+	players = [account.player for account in room.accounts]
+	player_num = room.accounts.index(account)
+	game = Game(players)
+	room.game = game
 	current_round = room.game.create_round()
 	
 	initial_players = []
@@ -154,7 +166,6 @@ def threaded_client(conn, account):
 	
 	print("Lost connection")
 	conn.close()
-
 
 if __name__ == "__main__":
 	main()
