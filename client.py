@@ -15,6 +15,7 @@ def redraw_window(window):
     for player in players:
         player.draw(window)
     me.draw(window)
+    me.draw(window)
     pygame.display.update()
 
 
@@ -49,7 +50,7 @@ def in_login(screen, clock):
         ViewHandler.handle_view_events(events)
 
         ViewHandler.render_views(screen)
-        pygame.display.flip()
+        pygame.display.update()
         clock.tick(60)
 
     return username.text.text, password.text.text
@@ -64,10 +65,10 @@ def in_lobby(screen, clock):
         print("Supposed to send room thingy")
         lobby = False
 
-    title = TextView(WIDTH / 2 - 50, 50) \
+    title = TextView(WIDTH / 2 - 25, 50) \
         .set_text("MAAchtung")
 
-    room1 = Button(WIDTH / 2 - 50, 250) \
+    room1 = Button(WIDTH / 2 - 25, 250) \
         .set_text("Room #1") \
         .set_on_click_listener(room_listener)
 
@@ -92,6 +93,35 @@ def in_lobby(screen, clock):
         i %= 5
 
 
+def in_room(screen, clock):
+    ViewHandler.clear_views()
+    room = True
+
+    def game_listener():
+        nonlocal room
+        room = False
+
+    play = Button(WIDTH / 2 - 25, 50) \
+        .set_text("Ya wanna play boi?") \
+        .set_on_click_listener(game_listener)
+
+    while room:
+        screen.fill([0, 0, 0])
+        events = pygame.event.get()
+
+        for event in events:
+            if event.type == pygame.QUIT:
+                lobby = False
+                pygame.quit()
+                break
+
+        ViewHandler.handle_view_events(events)
+
+        ViewHandler.render_views(screen)
+        pygame.display.update()
+        clock.tick(60)
+
+
 def main():
     global me, players
 
@@ -107,6 +137,9 @@ def main():
 
     # Draw Main Menu while not in a room
     in_lobby(screen, clock)
+
+    # Draw the room
+    in_room(screen, clock)
 
     n = Network()
     receive(n.client)
