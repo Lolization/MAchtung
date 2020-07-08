@@ -47,12 +47,28 @@ class Color:
 class View(ABC):
 
 	@abstractmethod
-	def __init__(self, x=0, y=0):
+	def __init__(self, x=0, y=0, w=50, h=50):
 		self.x = x
 		self.y = y
-		self.w = 50
-		self.h = 50
+		self.w = w
+		self.h = h
 		ViewHandler.views.append(self)
+
+	def set_x(self, x):
+		self.x = x
+		return self
+
+	def set_y(self, y):
+		self.y = y
+		return self
+
+	def set_width(self, w):
+		self.w = w
+		return self
+
+	def set_height(self, h):
+		self.h = h
+		return self
 
 	@abstractmethod
 	def draw(self, screen):
@@ -64,10 +80,9 @@ class View(ABC):
 
 
 class AbsTextView(View, ABC):
-	def __init__(self, x, y):
-		super().__init__(x, y)
+	def __init__(self, x, y, w=50, h=50):
+		super().__init__(x, y, w, h)
 		self.text = Text(x + 5, y + 5)
-		self.w = 100
 
 		self.on_click_listener = None
 		self.on_right_click_listener = None
@@ -188,16 +203,21 @@ class TextView(AbsTextView):
 
 
 class EditText(AbsTextView):
-	def __init__(self, x, y):
-		super().__init__(x, y)
+	def __init__(self, x, y, w=50, h=50):
+		super().__init__(x, y, w, h)
 		self.active = False
 
 	def handle_events(self, pygame, events):
 		for event in events:
+			if event.type == pygame.KEYDOWN:
+				if self.active:
+					if event.key == pygame.K_BACKSPACE:
+						self.text.text = self.text.text[:-1]
+					else:
+						self.text.text += event.unicode
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
 					self.active = True
-					keys = pygame.key.get_pressed()
 
 				else:
 					self.active = False

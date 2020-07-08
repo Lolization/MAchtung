@@ -22,14 +22,21 @@ def redraw_window(window):
 def in_login(screen, clock):
     login = True
 
-    def room_listener():
+    def login_listener():
         nonlocal login
         print("Supposed to send username & password thingy")
         login = False
 
-    room1 = Button(50, 50) \
-        .set_text("Room #1") \
-        .set_on_click_listener(room_listener)
+    username = EditText(150, 150, 200, 50) \
+        .set_text("Username") \
+
+    password = EditText(150, 250, 200, 50) \
+        .set_text("Password")
+
+    login_btn = Button(200, 350, 100, 50) \
+        .set_text("Login!") \
+        .set_on_click_listener(login_listener) \
+        .set_rainbow(True)
 
     while login:
         screen.fill([0, 0, 0])
@@ -37,6 +44,7 @@ def in_login(screen, clock):
         for event in events:
             if event.type == pygame.QUIT:
                 login = False
+                pygame.quit()
                 break
 
         ViewHandler.handle_view_events(events)
@@ -45,8 +53,7 @@ def in_login(screen, clock):
         pygame.display.flip()
         clock.tick(60)
 
-    username, password = "dori", "1251"
-    return username, password
+    return username.text.text, password.text.text
 
 
 def in_lobby(screen, clock):
@@ -67,6 +74,7 @@ def in_lobby(screen, clock):
         for event in events:
             if event.type == pygame.QUIT:
                 lobby = False
+                pygame.quit()
                 break
 
         ViewHandler.handle_view_events(events)
@@ -83,10 +91,13 @@ def main():
     ViewHandler.set_pygame(pygame)
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
-    n = Network()
 
     # Draw Log-in and Register while not connected
     username, password = in_login(screen, clock)
+    print(username)
+    print(password)
+
+    n = Network()
     n.send(pickle.dumps((username, password)))
 
     # Draw Main Menu while not in a room
