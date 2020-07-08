@@ -1,4 +1,4 @@
-import socket
+from socket import socket, AF_INET, SOCK_STREAM, error
 from _thread import *
 from typing import Union
 from snake import Snake
@@ -45,11 +45,11 @@ def main():
 
 def create_socket():
 	global s
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s = socket(AF_INET, SOCK_STREAM)
 	
 	try:
 		s.bind((SERVER, PORT))
-	except socket.error as e:
+	except error as e:
 		str(e)
 	
 	s.listen(2)
@@ -64,14 +64,13 @@ def get_room(iden):
 	return None
 
 
-def create_room(acc):
+def create_room(con, acc):
 	new_room = Room().add_account(acc)
-	print(len(lobby_conns))
+	lobby_conns.remove(con)
 	for con in lobby_conns:
 		con.sendall(pickle.dumps(new_room))
 	rooms.append(new_room)
-	room_cons[new_room.id] = []
-	print('a')
+	room_cons[new_room.id] = [con]
 	return new_room
 
 
@@ -79,8 +78,8 @@ def join_room(room_id, acc):
 	# type: (int, Account) -> Room
 	
 	room = get_room(room_id)
-	for account in room.accounts:  # type: Account
-		# account.con.sendall(pickle.dumps(acc))
+	for con in room_cons[room_id]:  # type: socket
+		con.sendall(pickle.dumps(acc))
 		pass
 	room.add_account(acc)
 	return room
@@ -101,13 +100,11 @@ def threaded_client(conn, account):
 				lobby = False
 			elif action == "Create":
 				print("create room gever")
-				room = create_room(account)
+				room = create_room(conn, account)
 				lobby = False
 			
 			else:
 				print("PLEASE HELP ME")
-	
-	lobby_conns.remove(conn)
 	
 	while not room.running:
 		pass
