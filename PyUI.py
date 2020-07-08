@@ -22,6 +22,10 @@ class ViewHandler:
 		for view in ViewHandler.views:
 			view.draw(screen)
 
+	@staticmethod
+	def clear_views():
+		ViewHandler.views.clear()
+
 
 class Color:
 	def __init__(self, r, g=None, b=None):

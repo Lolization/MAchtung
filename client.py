@@ -57,6 +57,7 @@ def in_login(screen, clock):
 
 def in_lobby(screen, clock):
     lobby = True
+    ViewHandler.clear_views()
 
     def room_listener():
         nonlocal lobby
@@ -100,10 +101,9 @@ def main():
     clock = pygame.time.Clock()
 
     # Draw Log-in and Register while not connected
-    # username, password = in_login(screen, clock)
-    # print(username)
-    # print(password)
-
+    username, password = in_login(screen, clock)
+    print(username)
+    print(password)
 
     # Draw Main Menu while not in a room
     in_lobby(screen, clock)
