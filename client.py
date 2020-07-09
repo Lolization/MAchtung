@@ -40,9 +40,8 @@ def in_login(screen, clock):
 		print("Supposed to send username & password thingy")
 		login = False
 
-	title = TextView(150, 50, 250, 60) \
-		.set_text("Achtung") \
-		.set_font_type("Courier New")
+	title = TextView(150, 50, 200, 50) \
+		.set_text("Achtung")
 
 	username = EditText(150, 150, 200, 50) \
 		.set_text("Username") \
@@ -55,7 +54,8 @@ def in_login(screen, clock):
 	login_btn = Button(350, 400, 100, 50) \
 		.set_text("Login!") \
 		.set_on_click_listener(login_listener) \
-		.set_rainbow(True)
+		.set_on_hover_listener(on_hover) \
+		.set_on_unhover_listener(on_unhover)
 	
 	while login:
 		screen.fill(BACKGROUND_COLOR)

@@ -93,7 +93,10 @@ class AbsTextView(View, ABC):
 
 		self.on_click_listener = None
 		self.on_right_click_listener = None
+
 		self.on_hover_listener = None
+		self.on_unhover_listener = None
+		self.hover_active = False
 
 		self.obj = ViewHandler.pygame.Rect(self.x, self.y, self.w, self.h)
 		self.border = 2
@@ -144,6 +147,10 @@ class AbsTextView(View, ABC):
 		self.on_hover_listener = listener
 		return self
 
+	def set_on_unhover_listener(self, listener):
+		self.on_unhover_listener = listener
+		return self
+
 	def set_draw_frame(self, frame):
 		self.frame = frame
 		return self
@@ -162,7 +169,7 @@ class Text:
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
 		self.font_size = FONT_SIZE
-		self.font_type = "David"
+		self.font_type = "Courier New"
 		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
 
 	def is_rainbow(self, is_rainbow):
@@ -224,7 +231,15 @@ class Text:
 
 
 class TextView(AbsTextView):
-	pass
+	def handle_events(self, pygame, events):
+		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
+			if self.obj.collidepoint(pygame.mouse.get_pos()):
+				self.on_hover_listener(self)
+				self.hover_active = True
+
+			elif self.hover_active:
+				self.on_unhover_listener(self)
+				self.hover_active = False
 
 
 class EditText(AbsTextView):
@@ -233,6 +248,15 @@ class EditText(AbsTextView):
 		self.active = False
 
 	def handle_events(self, pygame, events):
+		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
+			if self.obj.collidepoint(pygame.mouse.get_pos()):
+				self.on_hover_listener(self)
+				self.hover_active = True
+
+			elif self.hover_active:
+				self.on_unhover_listener(self)
+				self.hover_active = False
+
 		for event in events:
 			if event.type == pygame.KEYDOWN:
 				if self.active:
@@ -263,6 +287,15 @@ class Button(AbsTextView):
 		self.set_draw_frame(True)
 
 	def handle_events(self, pygame, events):
+		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
+			if self.obj.collidepoint(pygame.mouse.get_pos()):
+				self.on_hover_listener(self)
+				self.hover_active = True
+
+			elif self.hover_active:
+				self.on_unhover_listener(self)
+				self.hover_active = False
+
 		for event in events:
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
