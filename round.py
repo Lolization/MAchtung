@@ -66,7 +66,6 @@ def test():
 	pygame.display.update()
 	for player in round.snakes:
 		print('x: ', player.head.x, ' y: ', player.head.y, ' color: ', player.color)
-	time.sleep(10)
 
 
 if __name__ == "__main__":

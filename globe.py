@@ -1,7 +1,7 @@
 import math
 
 # Connections
-SERVER = "10.100.102.209"
+SERVER = "10.0.0.11"
 PORT = 5555
 
 # Snake initializations
@@ -25,10 +25,8 @@ def degree_to_rad(degree):
 
 # Graphical effect of hovering
 def on_hover(view):
-    print("hover")
     view.set_rainbow(True)
 
 
 def on_unhover(view):
-    print("unhover")
     view.set_rainbow(False)
