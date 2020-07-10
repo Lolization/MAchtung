@@ -55,7 +55,7 @@ class Round:
 
 def test():
 	window = pygame.display.set_mode((500, 500))
-	snakes = [(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH)) for i in range(5)]
+	snakes = [(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH)) for i in range(10)]
 	round = Round(snakes)
 	print("amount: ", round.amount)
 	round.initialize()
@@ -66,6 +66,12 @@ def test():
 	pygame.display.update()
 	for player in round.snakes:
 		print('x: ', player.head.x, ' y: ', player.head.y, ' color: ', player.color)
+
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			run = False
+			print("quit")
+			pygame.quit()
 	time.sleep(10)
 
 

@@ -6,17 +6,12 @@ from globe import *
 class ViewHandler:
 
 	views = []
-	pygame = None
 	font = None
-
-	@staticmethod
-	def set_pygame(pygame):
-		ViewHandler.pygame = pygame
 
 	@staticmethod
 	def handle_view_events(events):
 		for view in ViewHandler.views:
-			view.handle_events(ViewHandler.pygame, events)
+			view.handle_events(events)
 
 	@staticmethod
 	def render_views(screen):
@@ -82,7 +77,7 @@ class View(ABC):
 		pass
 
 	@abstractmethod
-	def handle_events(self, pygame, events):
+	def handle_events(self, events):
 		pass
 
 
@@ -98,7 +93,7 @@ class AbsTextView(View, ABC):
 		self.on_unhover_listener = None
 		self.hover_active = False
 
-		self.obj = ViewHandler.pygame.Rect(self.x, self.y, self.w, self.h)
+		self.obj = pygame.Rect(self.x, self.y, self.w, self.h)
 		self.border = 2
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
@@ -113,7 +108,7 @@ class AbsTextView(View, ABC):
 
 	def draw(self, screen):
 		if self.frame:
-			ViewHandler.pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
+			pygame.draw.rect(screen, self.color.to_arr(), self.obj, self.border)
 		self.text.draw(screen)
 		return self
 
@@ -121,7 +116,7 @@ class AbsTextView(View, ABC):
 		self.text.update(self.w, self.h)
 		self.text.center(self.x, self.y, self.w, self.h)
 
-	def handle_events(self, pygame, events):
+	def handle_events(self, events):
 		pass
 
 	def set_text(self, text):
@@ -170,7 +165,7 @@ class Text:
 		self.rainbow = False
 		self.font_size = FONT_SIZE
 		self.font_type = "Courier New"
-		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
+		self.font = pygame.font.SysFont(self.font_type, self.font_size)
 
 	def is_rainbow(self, is_rainbow):
 		self.rainbow = is_rainbow
@@ -184,11 +179,11 @@ class Text:
 
 	def set_font_size(self, size):
 		self.font_size = size
-		self.font = ViewHandler.pygame.font.SysFont(self.font_type, size)
+		self.font = pygame.font.SysFont(self.font_type, size)
 
-	def set_font_type(self, type):
-		self.font_type = type
-		self.font = ViewHandler.pygame.font.SysFont(self.font_type, self.font_size)
+	def set_font_type(self, font_type):
+		self.font_type = font_type
+		self.font = pygame.font.SysFont(self.font_type, self.font_size)
 
 	def set_color(self, rgb):
 		self.color = rgb
@@ -231,7 +226,7 @@ class Text:
 
 
 class TextView(AbsTextView):
-	def handle_events(self, pygame, events):
+	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
 			if self.obj.collidepoint(pygame.mouse.get_pos()):
 				self.on_hover_listener(self)
@@ -247,7 +242,7 @@ class EditText(AbsTextView):
 		super().__init__(x, y, w, h)
 		self.active = False
 
-	def handle_events(self, pygame, events):
+	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
 			if self.obj.collidepoint(pygame.mouse.get_pos()):
 				self.on_hover_listener(self)
@@ -286,7 +281,7 @@ class Button(AbsTextView):
 		super().__init__(x, y, w, h)
 		self.set_draw_frame(True)
 
-	def handle_events(self, pygame, events):
+	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
 			if self.obj.collidepoint(pygame.mouse.get_pos()):
 				self.on_hover_listener(self)
