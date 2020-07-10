@@ -15,6 +15,7 @@ pygame.display.set_caption("Client")
 players = []
 me = None
 n = None  # type: Union[None, Network]
+i = 0  # Shitty solution for load
 
 
 # Graphics
@@ -34,6 +35,14 @@ def on_hover(view):
 def on_unhover(view):
 	print("unhover")
 	view.text.set_color(Color(255, 255, 255))
+
+
+def load(screen):
+	global i
+	i += 1
+	i %= 5
+	for k in range(i):
+		pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 15 + (k * 5)), 120), 2)
 
 
 def is_everyone_ready(accounts):
@@ -118,29 +127,34 @@ def in_lobby(screen, clock, rooms):
 		data = rooms[room_num], accs
 		lobby = False
 
-	title = TextView(WIDTH / 2 - 50, 50, 100) \
-		.set_text("MAAchtung")
+	title = TextView(150, 50, 200, 50) \
+		.set_text("Achtung")
 
 	btns = []
 
 	for i, room in enumerate(rooms):
 		btns.append(Button(WIDTH / 2 - 150, 250 + (i * 75), 300)
-		            .set_text(f"Room #{room.id}")
-		            .set_on_click_listener(room_listener))
+		            .set_text(f"Room #{room.id + 1}")
+		            .set_on_click_listener(room_listener)
+		            .set_on_hover_listener(on_hover)
+		            .set_on_unhover_listener(on_unhover))
 
-	create_room_btn = Button(WIDTH / 4, 400, 150) \
-		.set_text("Create A Room Buddy!") \
-		.set_on_click_listener(new_room_listener)
+	create_room_btn = Button(300, 400, 175, 50) \
+		.set_text("Create A Room") \
+		.set_on_click_listener(new_room_listener) \
+		.set_on_hover_listener(on_hover) \
+		.set_on_unhover_listener(on_unhover)
 
-	i = 0
 	while lobby:
 		new_room = n.receive()
 		if new_room:
 			print("got room")
 			rooms.append(new_room)
 			btns.append(Button(WIDTH / 2 - 50, 250 + ((len(rooms) - 1) * 75), 100)
-			            .set_text(f"Room #{new_room.id}")
-			            .set_on_click_listener(room_listener))
+			            .set_text(f"Room #{new_room.id + 1}")
+			            .set_on_click_listener(room_listener)
+			            .set_on_hover_listener(on_hover)
+			            .set_on_unhover_listener(on_unhover))
 
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
@@ -150,15 +164,12 @@ def in_lobby(screen, clock, rooms):
 				pygame.quit()
 				break
 
-		for k in range(i):
-			pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 20 + (k * 5)), 120), 2)
+		load(screen)
 		ViewHandler.handle_view_events(events)
 
 		ViewHandler.render_views(screen)
 		pygame.display.flip()
 		clock.tick(60)
-		i += 1
-		i %= 5
 
 	return data
 
@@ -178,7 +189,9 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 
 	play = Button(WIDTH / 2 - 150, 50, 300) \
 		.set_text("Ready") \
-		.set_on_click_listener(game_listener)
+		.set_on_click_listener(game_listener) \
+		.set_on_hover_listener(on_hover) \
+		.set_on_unhover_listener(on_unhover)
 
 	MyTextView = TextView(50, 150, 200).set_text(my_acc.username)
 
