@@ -171,13 +171,13 @@ def in_lobby(screen, clock, rooms):
 	return data
 
 
-def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, accounts: List[Account]) -> None:
+def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, accounts: List[Account], room: Room) -> None:
 	ViewHandler.clear_views()
-	room = True
+	is_in_room = True
 	sent_ready = False
 
 	def game_listener(view):
-		nonlocal room
+		nonlocal is_in_room
 		nonlocal sent_ready
 
 		if not sent_ready:
@@ -199,7 +199,7 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 		accounts_display.append(TextView(WIDTH / 2, 200 + (i * 50), 300)
 		                        .set_text(acc.username))
 
-	while room:
+	while is_in_room:
 		data = n.receive()
 		if data:
 			if type(data) == Account:
@@ -210,14 +210,15 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 				                        .set_text(new_account.username))
 			else:
 				if data == "ready":
-					room = False
+					room.running = True
+					is_in_room = False
 
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
 
 		for event in events:
 			if event.type == pygame.QUIT:
-				room = False
+				is_in_room = False
 				pygame.quit()
 				break
 
@@ -252,13 +253,11 @@ def main():
 	room, accs = in_lobby(screen, clock, rooms)
 
 	# Draw the room
-	in_room(screen, clock, my_acc, accs)
+	in_room(screen, clock, my_acc, accs, room)
 
 	while not room.running:  # Wait for everyone to say "ready"
 		print("waiting")
 		pass
-
-	me, players = n.receive()
 
 	run = True
 	message = n.receive()
