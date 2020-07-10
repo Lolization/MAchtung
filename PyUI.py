@@ -209,6 +209,7 @@ class Text:
 
 	def do_rainbow(self):
 		r, g, b = self.color.to_arr()
+		print(r, g, b)
 		if r == 255 and b > 0:
 			b -= 1
 		elif r == 255 and g < 255:
@@ -228,7 +229,7 @@ class Text:
 class TextView(AbsTextView):
 	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
-			if self.obj.collidepoint(pygame.mouse.get_pos()):
+			if self.obj.collidepoint(pygame.mouse.get_pos()) and not self.hover_active:
 				self.on_hover_listener(self)
 				self.hover_active = True
 

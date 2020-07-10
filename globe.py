@@ -22,3 +22,14 @@ def rad_to_degree(rads):
 
 def degree_to_rad(degree):
     return degree * (180 / math.pi)
+
+
+# Graphical effect of hovering
+def on_hover(view):
+    print("hover")
+    view.set_rainbow(True)
+
+
+def on_unhover(view):
+    print("unhover")
+    view.set_rainbow(False)

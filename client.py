@@ -245,6 +245,7 @@ def main():
 	in_room(screen, clock, my_acc, accs)
 
 	while not room.running:  # Wait for everyone to say "ready"
+		print("waiting")
 		pass
 
 	me, players = n.receive()
