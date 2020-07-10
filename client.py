@@ -28,12 +28,10 @@ def redraw_window(window):
 
 
 def on_hover(view):
-	print("hover")
 	view.text.set_color(Color(0, 0, 0))
 
 
 def on_unhover(view):
-	print("unhover")
 	view.text.set_color(Color(255, 255, 255))
 
 
@@ -78,7 +76,6 @@ def in_login(screen, clock):
 		.set_on_unhover_listener(on_unhover)
 
 	while login:
-		print("iteration")
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
 		for event in events:
@@ -150,7 +147,7 @@ def in_lobby(screen, clock, rooms):
 		if new_room:
 			print("got room")
 			rooms.append(new_room)
-			btns.append(Button(WIDTH / 2 - 50, 250 + ((len(rooms) - 1) * 75), 100)
+			btns.append(Button(WIDTH / 2 - 150, 250 + ((len(rooms) - 1) * 75), 300)
 			            .set_text(f"Room #{new_room.id + 1}")
 			            .set_on_click_listener(room_listener)
 			            .set_on_hover_listener(on_hover)
