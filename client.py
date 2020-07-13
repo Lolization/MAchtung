@@ -291,7 +291,10 @@ def main():
 	redraw_window(win)
 	while run:
 		clock.tick(60)
-		heads = n.send(me.head)
+		n.send(me.head)
+		heads = n.receive()
+		while heads is None:
+			heads = n.receive()
 		print("heads: ", heads)
 
 		# print('heads: ', heads)

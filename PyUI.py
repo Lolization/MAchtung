@@ -43,8 +43,17 @@ class Color:
 		self.b = rgb.b
 		return self
 
-	def to_arr(self):
+	def to_arr(self) -> list:
 		return [self.r, self.g, self.b]
+
+	def equals(self, other) -> bool:
+		return self.r == other.r and self.g == other.g and self.b == other.b
+
+	def reverted(self):
+		return Color(255 - self.r, 255 - self.g, 255 - self.b)
+
+	def is_similar(self, other):
+		return abs(self.r - other.r) + abs(self.g - other.g) + abs(self.b - other.b) < 100
 
 
 class View(ABC):

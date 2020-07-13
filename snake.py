@@ -36,7 +36,7 @@ class Snake:
                 point.draw(window)
             for i in range(15):  # make sure the colored points for gaps won't get covered by other points
                 if index > i:
-                    if self.body[index - i - 1].color != self.color:
+                    if not self.color.equals(self.body[index - i - 1].color):
                         self.body[index - i - 1].draw(window)
         self.head.draw(window)
 
@@ -122,7 +122,7 @@ class Snake:
                 while j >= max(0, i): # make it j >= max(0, i - _) for longer painting
                     point = self.body[j]
                     point.draw_gap(window)
-                    self.body[j].color = (255 - point.color[0], 255 - point.color[1], 255 - point.color[2])
+                    self.body[j].color = self.body[j].color.reverted()
                     j -= 1
                 break
             i -= 1
@@ -157,7 +157,7 @@ class Point:
         self.gap_id = -1
 
     def draw(self, window):
-        pygame.draw.circle(window, self.color, (int(self.x), int(self.y)), int(self.radius))
+        pygame.draw.circle(window, self.color.to_arr(), (int(self.x), int(self.y)), int(self.radius))
 
     def collides(self, other):
         dis = math.sqrt(math.pow(self.x - other.x, 2) + math.pow(self.y - other.y, 2))
@@ -167,10 +167,10 @@ class Point:
         return False
 
     def equals(self, other):
-        if self.x == other.x and self.y == other.y and self.radius == other.radius and self.color == other.color:
+        if self.x == other.x and self.y == other.y and self.radius == other.radius and self.color.equals(other.color):
             return True
         return False
 
     def draw_gap(self, window):
-        pygame.draw.circle(window, (255 - self.color[0], 255 - self.color[1], 255 - self.color[2]),
+        pygame.draw.circle(window, self.color.reverted().to_arr(),
                            (int(self.x), int(self.y)), int(self.radius))

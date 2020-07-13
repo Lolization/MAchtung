@@ -1,3 +1,4 @@
+from PyUI import Color
 from snake import Snake
 import math
 import random
@@ -55,7 +56,7 @@ class Round:
 
 def test():
 	window = pygame.display.set_mode((500, 500))
-	snakes = [(Snake((0, 0), (255, 255, 255), START_SPEED, 0, START_WIDTH)) for i in range(10)]
+	snakes = [(Snake((0, 0), Color(255, 255, 255), START_SPEED, 0, START_WIDTH)) for i in range(10)]
 	round = Round(snakes)
 	print("amount: ", round.amount)
 	round.initialize()

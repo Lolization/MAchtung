@@ -1,3 +1,4 @@
+import time
 from socket import socket, AF_INET, SOCK_STREAM, error
 from _thread import *
 from typing import Union
@@ -136,9 +137,8 @@ def threaded_client(conn: socket, account: Account) -> None:
 			initial_players.append(current_round.snakes[i])
 	message = (current_round.snakes[player_num], initial_players)
 	print(message)
-	
-	for i in range(5):
-		conn.sendall(pickle.dumps("12388"))
+
+	time.sleep(1)
 	
 	conn.sendall(pickle.dumps(message))
 	
