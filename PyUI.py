@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 import pygame
 from globe import *
@@ -19,7 +20,7 @@ class ViewHandler:
 			if issubclass(view.__class__, AbsTextView):
 				view.update()
 			view.draw(screen)
-
+	
 	@staticmethod
 	def clear_views():
 		ViewHandler.views.clear()
@@ -194,9 +195,14 @@ class Text:
 		screen.blit(word_surface, (x, y))
 
 	def update(self, width, height):
-		self.set_font_size(FONT_SIZE)
 		word_surface = self.font.render(self.text, 0, self.color.to_arr())
 		word_width, word_height = word_surface.get_size()
+		
+		while word_width * 1.7 <= width and word_height * 1.7 <= height:
+			self.set_font_size(self.font_size + 1)
+			word_surface = self.font.render(self.text, 0, self.color.to_arr())
+			word_width, word_height = word_surface.get_size()
+		
 		while word_width * 1.7 > width or word_height * 1.7 > height:
 			self.set_font_size(self.font_size - 1)
 			word_surface = self.font.render(self.text, 0, self.color.to_arr())

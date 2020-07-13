@@ -9,6 +9,7 @@ import pickle
 from globe import *
 from player import Player
 from room import Room
+import time
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Client")
@@ -83,9 +84,9 @@ def in_login(screen, clock):
 				login = False
 				pygame.quit()
 				break
-
+		
 		ViewHandler.handle_view_events(events)
-
+		
 		ViewHandler.render_views(screen)
 		pygame.display.update()
 		clock.tick(60)
@@ -102,10 +103,16 @@ def in_lobby(screen, clock, rooms):
 	def new_room_listener(view):
 		nonlocal lobby
 		nonlocal data
-
-		new_room_created = Room()
-		n.send(("Create", new_room_created))
-		data = new_room_created, []
+		
+		n.send(("Create", 0))
+		
+		load(screen)
+		
+		created_room = n.receive()
+		while created_room is None:
+			created_room = n.receive()
+		
+		data = (created_room, [])
 		lobby = False
 
 	def room_listener(view):
@@ -116,12 +123,14 @@ def in_lobby(screen, clock, rooms):
 		room_num = btns.index(view)
 		room_id = rooms[room_num].id
 		n.send(("Join", room_id))
+		
+		load(screen)
 
 		accs = n.receive()
 		while accs is None:
 			accs = n.receive()
 
-		data = rooms[room_num], accs
+		data = (rooms[room_num], accs)
 		lobby = False
 
 	title = TextView(150, 50, 200, 50) \
@@ -161,7 +170,6 @@ def in_lobby(screen, clock, rooms):
 				pygame.quit()
 				break
 
-		load(screen)
 		ViewHandler.handle_view_events(events)
 
 		ViewHandler.render_views(screen)
@@ -182,6 +190,7 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 
 		if not sent_ready:
 			n.send("ready")
+			print("Sent ready")
 			sent_ready = True
 
 	play = Button(WIDTH / 2 - 150, 50, 300) \
@@ -190,7 +199,7 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 		.set_on_hover_listener(on_hover) \
 		.set_on_unhover_listener(on_unhover)
 
-	MyTextView = TextView(50, 150, 200).set_text(my_acc.username)
+	my_textview = TextView(50, 150, 200).set_text(my_acc.username)
 
 	accounts_display = []  # type: List[TextView]
 
@@ -208,10 +217,12 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 				accounts.append(new_account)
 				accounts_display.append(TextView(WIDTH / 2, 200 + ((len(accounts) - 1) * 50), 300)
 				                        .set_text(new_account.username))
+			elif data == "ready":
+				print("Got ready")
+				room.running = True
+				is_in_room = False
 			else:
-				if data == "ready":
-					room.running = True
-					is_in_room = False
+				print("-----------Weird data!!!!:", data)
 
 		screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
@@ -254,21 +265,29 @@ def main():
 
 	# Draw the room
 	in_room(screen, clock, my_acc, accs, room)
+	
+	print("Got out of here")
 
 	while not room.running:  # Wait for everyone to say "ready"
 		print("waiting")
 		pass
 
-	run = True
 	message = n.receive()
 	while message is None:
-		print(message)
 		message = n.receive()
-		pass
+		print(f"{message} 11")
+		
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				run = False
+				print("quit")
+				pygame.quit()
+	print(message)
 	me, players = message
 	print("me: ", me)
 	print("players: ", players)
 
+	run = True
 	redraw_window(win)
 	while run:
 		clock.tick(60)

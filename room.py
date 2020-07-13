@@ -7,6 +7,7 @@ class Room:
 	def __init__(self):
 		self.id = Room.id
 		Room.id += 1
+		print(Room.id)
 		
 		self.accounts = []
 		self.game = None

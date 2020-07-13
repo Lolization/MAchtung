@@ -66,30 +66,30 @@ def get_room(iden):
 	return None
 
 
-def create_room(connection, acc, room):
-	new_room = room.add_account(acc)
+def create_room(connection, acc):
+	new_room = Room()\
+		.add_account(acc)
 	lobby_conns.remove(connection)
 	for con in lobby_conns:
 		con.sendall(pickle.dumps(new_room))
-	connection.sendall(pickle.dumps([]))
+	connection.sendall(pickle.dumps(new_room))
 	rooms.append(new_room)
 	room_cons[new_room.id] = [connection]
 	return new_room
 
 
-def join_room(connection, acc, room_id):
-	# type: (socket, Account, int) -> Room
+def join_room(connection: socket, acc: Account, room_id: int) -> Room:
 	
 	room = get_room(room_id)  # type: Room
 	for con in room_cons[room_id]:  # type: socket
 		con.sendall(pickle.dumps(acc))
-	print(room.accounts)
 	connection.sendall(pickle.dumps(room.accounts))
 	room.add_account(acc)
+	room_cons[room_id].append(connection)
 	return room
 
 
-def threaded_client(conn, account):
+def threaded_client(conn: socket, account: Account) -> None:
 	global s
 	room = None  # type: Union[None, Room]
 	
@@ -97,13 +97,13 @@ def threaded_client(conn, account):
 	while lobby:
 		msg = pickle.loads(conn.recv(4096))
 		if msg:
-			print(msg)
-			action, room_id = msg
+			action, placeholder = msg
 			if action == "Join":
+				room_id = placeholder
 				room = join_room(conn, account, room_id)
 				lobby = False
 			elif action == "Create":
-				room = create_room(conn, account, room_id)
+				room = create_room(conn, account)
 				lobby = False
 			
 			else:
@@ -136,7 +136,13 @@ def threaded_client(conn, account):
 			initial_players.append(current_round.snakes[i])
 	message = (current_round.snakes[player_num], initial_players)
 	print(message)
-	conn.send(pickle.dumps(message))
+	
+	for i in range(5):
+		conn.sendall(pickle.dumps("12388"))
+	
+	conn.sendall(pickle.dumps(message))
+	
+	print("Sent message")
 	
 	while True:
 		try:
