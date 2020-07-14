@@ -45,10 +45,10 @@ class Snake:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            self.alpha += self.degree / 360
+            self.alpha += 1.0 * self.degree / 360
 
         if keys[pygame.K_RIGHT]:
-            self.alpha -= self.degree / 360
+            self.alpha -= 1.0 * self.degree / 360
 
         head = Point(self.head.x, self.head.y, self.width / 2, self.color)
         head.x += math.cos(self.alpha) * self.speed

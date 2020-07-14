@@ -159,13 +159,11 @@ def threaded_client(conn: socket, account: Account) -> None:
 			if data == "lost":
 				break
 			current_round.snakes[player_num].add(data)
-			print(f"CHECK THIS OUT {current_round.snakes[player_num].alpha}")
 			
 			if not data:
 				print("Disconnected")
 				break
 			else:
-				print(len(current_round.snakes))
 				for i in range(len(current_round.snakes)):
 					if i != player_num:
 						print("entered")
