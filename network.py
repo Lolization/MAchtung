@@ -20,7 +20,8 @@ class Network:
 		try:
 			self.client.send(pickle.dumps(data))
 		except socket.error as e:
-			print(f"send {e}")
+			# print(f"send {e}")
+			pass
 	
 	def receive(self):
 		reply = []
@@ -32,7 +33,8 @@ class Network:
 					break
 				reply.append(packet)
 		except socket.error as e:
-			print(f"receive {e}")
+			# print(f"receive {e}")
+			pass
 		
 		if not reply:
 			return

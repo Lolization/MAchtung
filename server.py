@@ -127,15 +127,21 @@ def threaded_client(conn: socket, account: Account) -> None:
 	print("round started")
 	players = [account.player for account in room.accounts]
 	player_num = room.accounts.index(account)
-	game = Game(players)
-	room.game = game
-	current_round = room.game.create_round()
+	if room.game is None:
+		game = Game(players)
+		room.game = game
+	if room.game.current_round is None:
+		current_round = room.game.create_round()
+	else:
+		current_round = room.game.current_round
 	
 	initial_players = []
 	for i in range(len(current_round.snakes)):
 		if i != player_num:
 			initial_players.append(current_round.snakes[i])
-	current_round.start_game()
+	
+	if not current_round.start:
+		current_round.start_game()
 	message = (current_round.snakes[player_num], initial_players)
 	print(message)
 

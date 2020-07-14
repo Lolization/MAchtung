@@ -16,9 +16,9 @@ INVERT = [179, 235, 187]
 FONT_SIZE = 64
 
 
-def degree_to_rad(rads):
+def degree_to_rad(rads: float) -> float:
     return rads / (180 / math.pi)
 
 
-def rad_to_degree(degree):
+def rad_to_degree(degree: float) -> float:
     return degree * (180 / math.pi)

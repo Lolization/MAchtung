@@ -22,7 +22,7 @@ class Snake:
         self.alpha = alpha
         self.speed = speed
         self.width = width
-        self.degree = 2
+        self.degree = 10
         self.gap = False
         self.gap_count = 0
         self.gap_length = self.width * 3
@@ -45,10 +45,10 @@ class Snake:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            self.alpha -= degree_to_rad(self.degree)
+            self.alpha -= self.degree / 360
 
         if keys[pygame.K_RIGHT]:
-            self.alpha += degree_to_rad(self.degree)
+            self.alpha += self.degree / 360
 
         head = Point(self.head.x, self.head.y, self.width / 2, self.color)
         head.x += math.cos(self.alpha) * self.speed
@@ -147,6 +147,7 @@ class Snake:
         self.head.color = color
         self.body = [self.head]
         self.alpha = alpha
+        print(alpha)
 
 
 class Point:
