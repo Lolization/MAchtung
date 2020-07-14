@@ -54,6 +54,18 @@ class Color:
 
 	def is_similar(self, other):
 		return abs(self.r - other.r) + abs(self.g - other.g) + abs(self.b - other.b) < 100
+	
+	def add(self, amount):
+		self.r += amount
+		self.r %= 256
+		self.g += amount
+		self.g %= 256
+		self.b += amount
+		self.b %= 256
+		return self
+	
+	def copy(self):
+		return Color(self.r, self.g, self.b)
 
 
 class View(ABC):

@@ -33,9 +33,10 @@ class Round:
 		for i in range(self.amount):
 			x = center[0] + math.cos(degree_to_rad(alpha)) * (WIDTH / 2.5)
 			y = center[1] + math.sin(degree_to_rad(alpha)) * (HEIGHT / 2.5)
-			c = color
+			c = color.copy()
 			self.snakes[i].initialize(x, y, c, alpha)
 			alpha += degree
+			color.add(360 / self.amount)
 
 	def add_score(self, player, addition):
 		self.score[player] += addition
