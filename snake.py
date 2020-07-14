@@ -134,7 +134,7 @@ class Snake:
                 while j <= min(len(self.body) - 1, i):
                     point = self.body[j]
                     point.draw_gap(window)
-                    self.body[j].color = (255 - point.color[0], 255 - point.color[1], 255 - point.color[2])
+                    self.body[j].color = self.body[j].color.reverted()
                     j += 1
                 break
             i += 1

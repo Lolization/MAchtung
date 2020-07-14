@@ -27,13 +27,13 @@ class Round:
 		center = (WIDTH / 2, HEIGHT / 2)
 		alpha = 0
 		degree = 360 / self.amount
-		color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-		while color[0] > 200 and color[1] > 200 and color[2] > 200:
-			color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+		color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+		while color.is_similar(Color(BACKGROUND_COLOR)):
+			color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 		for i in range(self.amount):
 			x = center[0] + math.cos(alpha * (math.pi / 180)) * (WIDTH / 2.5)
 			y = center[1] + math.sin(alpha * (math.pi / 180)) * (HEIGHT / 2.5)
-			c = (color[0], color[1], color[2])
+			c = color
 			self.snakes[i].initialize(x, y, c)
 			alpha += degree
 			for k in range(len(color)):

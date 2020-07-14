@@ -265,8 +265,6 @@ def main():
 
 	# Draw the room
 	in_room(screen, clock, my_acc, accs, room)
-	
-	print("Got out of here")
 
 	while not room.running:  # Wait for everyone to say "ready"
 		print("waiting")

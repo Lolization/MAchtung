@@ -174,7 +174,7 @@ class Text:
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
 		self.font_size = FONT_SIZE
-		self.font_type = "Courier New"
+		self.font_type = "constantia"
 		self.font = pygame.font.SysFont(self.font_type, self.font_size)
 
 	def is_rainbow(self, is_rainbow):

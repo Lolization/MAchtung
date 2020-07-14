@@ -96,7 +96,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 	
 	lobby = True
 	while lobby:
-		msg = pickle.loads(conn.recv(4096))
+		msg = pickle.loads(conn.recv(1042))
 		if msg:
 			action, placeholder = msg
 			if action == "Join":
@@ -135,6 +135,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 	for i in range(len(current_round.snakes)):
 		if i != player_num:
 			initial_players.append(current_round.snakes[i])
+	current_round.start_game()
 	message = (current_round.snakes[player_num], initial_players)
 	print(message)
 

@@ -7,7 +7,6 @@ class Game:
 		self.current_round = None
 	
 	def create_round(self):
-		
 		snakes = []
 		for player in self.players:
 			snakes.append(player.create_snake())
