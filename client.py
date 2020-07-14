@@ -203,7 +203,6 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 
 	accounts_display = []  # type: List[TextView]
 
-	print(len(accounts))
 	for i, acc in enumerate(accounts):  # type: int, Account
 		accounts_display.append(TextView(WIDTH / 2, 200 + (i * 50), 300)
 		                        .set_text(acc.username))
@@ -292,7 +291,6 @@ def main():
 		heads = n.receive()
 		while heads is None:
 			heads = n.receive()
-		print("heads: ", heads)
 
 		# print('heads: ', heads)
 		for i in range(len(players)):

@@ -19,6 +19,7 @@ from account import Account
 
 # TODO - massive amount of data needs to be received (entire list of points)
 # TODO - create an .exe file
+# TODO: Crashes when creating room after a game started
 
 P1_COLOR = P2_COLOR = (20, 20, 20)
 rooms = []
@@ -155,7 +156,6 @@ def threaded_client(conn: socket, account: Account) -> None:
 		try:
 			reply = []
 			data = pickle.loads(conn.recv(4096))
-			print('head: ', data)
 			if data == "lost":
 				break
 			current_round.snakes[player_num].add(data)
@@ -169,8 +169,6 @@ def threaded_client(conn: socket, account: Account) -> None:
 					if i != player_num:
 						print("entered")
 						reply.append(current_round.snakes[i].head)
-				print("Received: ", data)
-				print("Sending : ", reply)
 			
 			conn.sendall(pickle.dumps(reply))
 		except error as e:
