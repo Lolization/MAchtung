@@ -1,11 +1,11 @@
 import math
 
 # Connections
-SERVER = "10.0.0.28"
+SERVER = "10.0.0.11"
 PORT = 5555
 
 # Snake initializations
-START_SPEED = 1
+START_SPEED = 0.8
 START_WIDTH = 8
 GAP_PROB = 0.003
 
@@ -16,9 +16,9 @@ INVERT = [179, 235, 187]
 FONT_SIZE = 64
 
 
-def rad_to_degree(rads):
+def degree_to_rad(rads):
     return rads / (180 / math.pi)
 
 
-def degree_to_rad(degree):
+def rad_to_degree(degree):
     return degree * (180 / math.pi)

@@ -11,7 +11,7 @@ class Round:
 	def __init__(self, snakes):
 		self.snakes = []
 		self.player_id = {}
-		self.amount = len(self.snakes)
+		self.amount = 0
 		self.score = {}
 		self.start = False
 		for snake in snakes:
@@ -28,17 +28,14 @@ class Round:
 		alpha = 0
 		degree = 360 / self.amount
 		color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-		while color.is_similar(Color(BACKGROUND_COLOR)):
+		while color.is_similar(Color(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2])):
 			color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 		for i in range(self.amount):
-			x = center[0] + math.cos(alpha * (math.pi / 180)) * (WIDTH / 2.5)
-			y = center[1] + math.sin(alpha * (math.pi / 180)) * (HEIGHT / 2.5)
+			x = center[0] + math.cos(degree_to_rad(alpha)) * (WIDTH / 2.5)
+			y = center[1] + math.sin(degree_to_rad(alpha)) * (HEIGHT / 2.5)
 			c = color
 			self.snakes[i].initialize(x, y, c)
-			alpha += degree
-			for k in range(len(color)):
-				color[k] += int(255 / self.amount)
-				color[k] %= 255
+			alpha += degree_to_rad(degree)
 
 	def add_score(self, player, addition):
 		self.score[player] += addition
