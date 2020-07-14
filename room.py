@@ -1,4 +1,6 @@
-from account import Account
+from typing import List, Union
+import account
+import game
 
 
 class Room:
@@ -9,12 +11,12 @@ class Room:
 		Room.id += 1
 		print(Room.id)
 		
-		self.accounts = []
-		self.game = None
-		self.running = False
+		self.accounts: List[account.Account] = []
+		self.game: Union[None, game.Game] = None
+		self.running: bool = False
 	
-	def add_account(self, account):
-		self.accounts.append(account)
+	def add_account(self, acc: account.Account):
+		self.accounts.append(acc)
 		return self
 	
 	def is_ready(self):

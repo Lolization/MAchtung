@@ -25,7 +25,7 @@ class Round:
 
 	def initialize(self):
 		center = (WIDTH / 2, HEIGHT / 2)
-		alpha = 180
+		alpha = 0
 		degree = 360 / self.amount
 		color = Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 		while color.is_similar(Color(BACKGROUND_COLOR[0], BACKGROUND_COLOR[1], BACKGROUND_COLOR[2])):
@@ -34,7 +34,7 @@ class Round:
 			x = center[0] + math.cos(degree_to_rad(alpha)) * (WIDTH / 2.5)
 			y = center[1] + math.sin(degree_to_rad(alpha)) * (HEIGHT / 2.5)
 			c = color.copy()
-			self.snakes[i].initialize(x, y, c, alpha)
+			self.snakes[i].initialize(x, y, c, alpha + 180)
 			alpha += degree
 			color.add(360 / self.amount)
 

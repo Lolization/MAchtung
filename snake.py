@@ -28,7 +28,7 @@ class Snake:
         self.gap_length = self.width * 3
         self.gap_id = 0
         self.gap_marks = []
-        self.prob = [0.004]  # self.prob[0] = prob for gap
+        self.prob = [GAP_PROB]  # self.prob[0] = prob for gap
         self.prob.append(1 - self.prob[0])
 
     def draw(self, window):
@@ -45,14 +45,14 @@ class Snake:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            self.alpha -= self.degree / 360
+            self.alpha += self.degree / 360
 
         if keys[pygame.K_RIGHT]:
-            self.alpha += self.degree / 360
+            self.alpha -= self.degree / 360
 
         head = Point(self.head.x, self.head.y, self.width / 2, self.color)
         head.x += math.cos(self.alpha) * self.speed
-        head.y += math.sin(self.alpha) * self.speed
+        head.y -= math.sin(self.alpha) * self.speed
         self.head = head
 
         flag = self.gap_count >= self.gap_length
@@ -147,7 +147,6 @@ class Snake:
         self.head.color = color
         self.body = [self.head]
         self.alpha = alpha
-        print(alpha)
 
 
 class Point:

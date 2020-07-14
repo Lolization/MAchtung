@@ -40,7 +40,7 @@ def main():
 		username, password = pickle.loads(conn.recv(2048))
 		print(username, password)
 		# TODO: Check if account already exists (Wrong pass, get info, etc.)
-		account = Account(conn, username, password)
+		account = Account(username, password)
 		print(account)
 		print(rooms)
 		conn.sendall(pickle.dumps((account, rooms)))
@@ -159,6 +159,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 			if data == "lost":
 				break
 			current_round.snakes[player_num].add(data)
+			print(f"CHECK THIS OUT {current_round.snakes[player_num].alpha}")
 			
 			if not data:
 				print("Disconnected")
