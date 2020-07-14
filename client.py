@@ -59,7 +59,7 @@ def in_login(screen, clock):
 		print("Supposed to send username & password thingy")
 		login = False
 
-	title = TextView(150, 50, 200, 50) \
+	title = TextView(130, 40, 250, 75) \
 		.set_text("Achtung")
 
 	username = EditText(150, 150, 200, 50) \
