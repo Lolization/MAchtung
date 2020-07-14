@@ -2,7 +2,7 @@ import math
 
 # Connections
 SERVER = "10.0.0.11"
-PORT = 5555
+PORT = 5000
 
 # Snake initializations
 START_SPEED = 0.8

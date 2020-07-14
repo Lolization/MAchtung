@@ -51,7 +51,7 @@ def create_socket():
 	s = socket(AF_INET, SOCK_STREAM)
 	
 	try:
-		s.bind((SERVER, PORT))
+		s.bind(("0.0.0.0", PORT))
 	except error as e:
 		str(e)
 	
