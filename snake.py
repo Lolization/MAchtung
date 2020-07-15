@@ -1,8 +1,7 @@
 import pygame
-import math
-import random
 from random import choices
 from globe import *
+import time
 
 # TODO - Smoother GUI
 # TODO - GUI
@@ -32,14 +31,34 @@ class Snake:
         self.prob.append(1 - self.prob[0])
 
     def draw(self, window):
+        t = time.time()
         for index, point in enumerate(self.body):
             if not point.gap:
                 point.draw(window)
-            for i in range(15):  # make sure the colored points for gaps won't get covered by other points
-                if index > i:
-                    if not self.color.equals(self.body[index - i - 1].color):
-                        self.body[index - i - 1].draw(window)
+
+            if index > 10:
+                p = self.body[index - 10]
+                if self.is_after_gap(p) or self.is_before_gap(p):
+                    p.draw(window)
+
         self.head.draw(window)
+        print("snake drawing time: ", time.time() - t)
+
+    def is_after_gap(self, point):
+        index = self.body.index(point)
+        if index <= 0:
+            return False
+        elif not point.gap and self.body[index - 1].gap:
+            return True
+        return False
+
+    def is_before_gap(self, point):
+        index = self.body.index(point)
+        if index >= len(self.body) - 1:
+            return False
+        elif not point.gap and self.body[self.body.index(point) + 1].gap:
+            return True
+        return False
 
     def move(self):
         keys = pygame.key.get_pressed()

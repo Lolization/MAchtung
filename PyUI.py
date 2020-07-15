@@ -236,7 +236,6 @@ class Text:
 
 	def do_rainbow(self):
 		r, g, b = self.color.to_arr()
-		print(r, g, b)
 		if r == 255 and b > 0:
 			b -= 1
 		elif r == 255 and g < 255:

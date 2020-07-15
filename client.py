@@ -313,11 +313,26 @@ def main():
 
 		me.move()
 		# redraw_window(win)
+		'''
 		for head in heads + [me.head]:
 			if not head.gap:
 				head.draw(win)
 			else:
 				redraw_window(win)
+		'''
+
+		for player in players + [me]:
+			head = player.head
+			if len(player.body) > 1:
+				point = player.body[-2]
+				if point.gap:
+					pygame.draw.circle(win, BACKGROUND_COLOR, (int(point.x), int(point.y)), int(point.radius))
+			if len(player.body) > 10:
+				p = player.body[-10]
+				if player.is_after_gap(p) or player.is_before_gap(p):
+					p.draw(win)
+			head.draw(win)
+
 		pygame.display.update()
 
 
