@@ -252,87 +252,89 @@ def main():
 
 	n = Network()
 	n.send((username, password))
+	
+	while True:
 
-	data = n.receive()
-	while data is None:
 		data = n.receive()
-
-	my_acc, rooms = data
-
-	# Draw Main Menu while not in a room
-	room, accs = in_lobby(screen, clock, rooms)
-
-	# Draw the room
-	in_room(screen, clock, my_acc, accs, room)
-
-	while not room.running:  # Wait for everyone to say "ready"
-		print("waiting")
-		pass
-
-	message = n.receive()
-	while message is None:
+		while data is None:
+			data = n.receive()
+	
+		my_acc, rooms = data
+	
+		# Draw Main Menu while not in a room
+		room, accs = in_lobby(screen, clock, rooms)
+	
+		# Draw the room
+		in_room(screen, clock, my_acc, accs, room)
+	
+		while not room.running:  # Wait for everyone to say "ready"
+			print("waiting")
+			pass
+	
 		message = n.receive()
-		
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				run = False
-				print("quit")
-				pygame.quit()
-	print(message)
-	me, players = message
-	print("me: ", me)
-	print("players: ", players)
-
-	run = True
-	redraw_window(win)
-	while run:
-		clock.tick(60)
-		n.send(me.head)
-		heads = n.receive()
-		while heads is None:
-			heads = n.receive()
-
-		# print('heads: ', heads)
-		for i in range(len(players)):
-			player = players[i]
-			head = heads[i]
-			player.add(head)
-
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				run = False
-				print("quit")
-				pygame.quit()
-
-		for player in players + [me]:
-			for head in heads + [me.head]:
-				if player.lost(head, win):
-					print("lost")
-					n.send("lost")
+		while message is None:
+			message = n.receive()
+			
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
 					run = False
-
-		me.move()
-		'''
-		for head in heads + [me.head]:
-			if not head.gap:
+					print("quit")
+					pygame.quit()
+		print(message)
+		me, players = message
+		print("me: ", me)
+		print("players: ", players)
+	
+		run = True
+		redraw_window(win)
+		while run:
+			clock.tick(60)
+			n.send(me.head)
+			heads = n.receive()
+			while heads is None:
+				heads = n.receive()
+	
+			# print('heads: ', heads)
+			for i in range(len(players)):
+				player = players[i]
+				head = heads[i]
+				player.add(head)
+	
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					run = False
+					print("quit")
+					pygame.quit()
+	
+			for player in players + [me]:
+				for head in heads + [me.head]:
+					if player.lost(head, win):
+						print("lost")
+						n.send("lost")
+						run = False
+	
+			me.move()
+			'''
+			for head in heads + [me.head]:
+				if not head.gap:
+					head.draw(win)
+				else:
+					redraw_window(win)
+			'''
+	
+			for player in players + [me]:
+				head = player.head
+				if len(player.body) > 1:
+					point = player.body[-2]
+					if point.gap:
+						pygame.draw.circle(win, BACKGROUND_COLOR, (int(point.x), int(point.y)), int(point.radius))
+				if len(player.body) > 10:
+					p = player.body[-10]
+					if player.is_after_gap(p) or player.is_before_gap(p):
+						p.draw(win)
 				head.draw(win)
-			else:
-				redraw_window(win)
-		'''
-
-		for player in players + [me]:
-			head = player.head
-			if len(player.body) > 1:
-				point = player.body[-2]
-				if point.gap:
-					pygame.draw.circle(win, BACKGROUND_COLOR, (int(point.x), int(point.y)), int(point.radius))
-			if len(player.body) > 10:
-				p = player.body[-10]
-				if player.is_after_gap(p) or player.is_before_gap(p):
-					p.draw(win)
-			head.draw(win)
-
-		pygame.display.update()
+	
+			pygame.display.update()
 
 
 if __name__ == "__main__":

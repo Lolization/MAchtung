@@ -35,7 +35,6 @@ def main():
 		print(username, password, " entered")
 		# TODO: Check if account already exists (Wrong pass, get info, etc.)
 		account = Account(username, password)
-		conn.sendall(pickle.dumps((account, rooms)))
 		start_new_thread(threaded_client, (conn, account))
 
 
@@ -85,86 +84,88 @@ def join_room(connection: socket, acc: Account, room_id: int) -> Room:
 
 def threaded_client(conn: socket, account: Account) -> None:
 	global s
-	room = None  # type: Union[None, Room]
-	
-	lobby = True
-	while lobby:
-		msg = pickle.loads(conn.recv(1042))
-		if msg:
-			action, placeholder = msg
-			if action == "Join":
-				room_id = placeholder
-				room = join_room(conn, account, room_id)
-				lobby = False
-			elif action == "Create":
-				room = create_room(conn, account)
-				lobby = False
-			
-			else:
-				print("PLEASE HELP ME")
-	
-	msg = pickle.loads(conn.recv(1024))
-	while msg is None:
-		msg = pickle.loads(conn.recv(1024))
-	
-	if msg == "ready":
-		account.ready = True
-		if room.is_ready():
-			for con in room_cons[room.id]:
-				con.sendall(pickle.dumps("ready"))
-			room.running = True
-	
-	while not room.running:
-		pass
-	
-	print("round started")
-	players = [account.player for account in room.accounts]
-	player_num = room.accounts.index(account)
-	if room.game is None:
-		game = Game(players)
-		room.game = game
-	if room.game.current_round is None:
-		current_round = room.game.create_round()
-	else:
-		current_round = room.game.current_round
-	
-	initial_players = []
-	for i in range(len(current_round.snakes)):
-		if i != player_num:
-			initial_players.append(current_round.snakes[i])
-	
-	if not current_round.start:
-		current_round.start_game()
-		print("started game")
-	message = (current_round.snakes[player_num], initial_players)
-	print(message)
-
-	time.sleep(1)
-	conn.sendall(pickle.dumps(message))
 	
 	while True:
-		try:
-			reply = []
-			data = pickle.loads(conn.recv(1042))
-			if data == "lost":
-				break
-			current_round.snakes[player_num].add(data)
-			
-			if not data:
-				print("Disconnected")
-				break
-			else:
-				for i in range(len(current_round.snakes)):
-					if i != player_num:
-						reply.append(current_round.snakes[i].head)
-			
-			conn.sendall(pickle.dumps(reply))
-		except error as e:
-			print(e)
-			break
+		conn.sendall(pickle.dumps((account, rooms)))
+		room = None  # type: Union[None, Room]
+		
+		lobby = True
+		while lobby:
+			msg = pickle.loads(conn.recv(1042))
+			if msg:
+				action, placeholder = msg
+				if action == "Join":
+					room_id = placeholder
+					room = join_room(conn, account, room_id)
+					lobby = False
+				elif action == "Create":
+					room = create_room(conn, account)
+					lobby = False
+				
+				else:
+					print("PLEASE HELP ME")
+		
+		msg = pickle.loads(conn.recv(1024))
+		while msg is None:
+			msg = pickle.loads(conn.recv(1024))
+		
+		if msg == "ready":
+			account.ready = True
+			if room.is_ready():
+				for con in room_cons[room.id]:
+					con.sendall(pickle.dumps("ready"))
+				room.running = True
+		
+		while not room.running:
+			pass
+		
+		print("round started")
+		players = [account.player for account in room.accounts]
+		player_num = room.accounts.index(account)
+		if room.game is None:
+			game = Game(players)
+			room.game = game
+		if room.game.current_round is None:
+			current_round = room.game.create_round()
+		else:
+			current_round = room.game.current_round
+		
+		initial_players = []
+		for i in range(len(current_round.snakes)):
+			if i != player_num:
+				initial_players.append(current_round.snakes[i])
+		
+		if not current_round.start:
+			current_round.start_game()
+			print("started game")
+		message = (current_round.snakes[player_num], initial_players)
+		print(message)
 	
-	print("Lost connection")
-	conn.close()
+		time.sleep(1)
+		conn.sendall(pickle.dumps(message))
+		
+		while True:
+			try:
+				reply = []
+				data = pickle.loads(conn.recv(1042))
+				if data == "lost":
+					break
+				current_round.snakes[player_num].add(data)
+				
+				if not data:
+					print("Disconnected")
+					break
+				else:
+					for i in range(len(current_round.snakes)):
+						if i != player_num:
+							reply.append(current_round.snakes[i].head)
+				
+				conn.sendall(pickle.dumps(reply))
+			except error as e:
+				print(e)
+				break
+		
+		lobby_conns.append(conn)
 
 
 if __name__ == "__main__":
