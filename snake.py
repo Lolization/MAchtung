@@ -165,7 +165,7 @@ class Snake:
         self.head.y = y
         self.head.color = color
         self.body = [self.head]
-        self.alpha = alpha
+        self.alpha = alpha % 360
 
 
 class Point:
