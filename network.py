@@ -20,7 +20,6 @@ class Network:
 		try:
 			self.client.send(pickle.dumps(data))
 		except socket.error as e:
-			# print(f"send {e}")
 			pass
 	
 	def receive(self):
@@ -28,12 +27,10 @@ class Network:
 		try:
 			while True:
 				packet = self.client.recv(2048)
-				# print('packet: ', packet)
 				if not packet:
 					break
 				reply.append(packet)
 		except socket.error as e:
-			# print(f"receive {e}")
 			pass
 		
 		if not reply:
@@ -41,5 +38,4 @@ class Network:
 		
 		reply = b"".join(reply)
 		reply = pickle.loads(reply)
-		
 		return reply

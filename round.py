@@ -49,7 +49,7 @@ class Round:
 			print("snake:")
 			print("x: ", snake.head.x)
 			print("y: ", snake.head.y)
-			print("color: ", snake.color)
+			print("alpha: ", snake.alpha)
 
 
 def test():

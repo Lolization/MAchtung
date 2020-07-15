@@ -1,7 +1,7 @@
 import math
 
 # Connections
-SERVER = "10.0.0.11"
+SERVER = "10.100.102.209"
 PORT = 5000
 
 # Snake initializations

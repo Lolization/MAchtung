@@ -37,12 +37,10 @@ def main():
 		lobby_conns.append(conn)  # TODO: Email and pass thing verification
 		print("Connected to:", address)
 		
-		username, password = pickle.loads(conn.recv(2048))
-		print(username, password)
+		username, password = pickle.loads(conn.recv(1042))
+		print(username, password, " entered")
 		# TODO: Check if account already exists (Wrong pass, get info, etc.)
 		account = Account(username, password)
-		print(account)
-		print(rooms)
 		conn.sendall(pickle.dumps((account, rooms)))
 		start_new_thread(threaded_client, (conn, account))
 
@@ -143,6 +141,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 	
 	if not current_round.start:
 		current_round.start_game()
+		print("started game")
 	message = (current_round.snakes[player_num], initial_players)
 	print(message)
 
@@ -155,7 +154,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 	while True:
 		try:
 			reply = []
-			data = pickle.loads(conn.recv(4096))
+			data = pickle.loads(conn.recv(1042))
 			if data == "lost":
 				break
 			current_round.snakes[player_num].add(data)
@@ -166,7 +165,6 @@ def threaded_client(conn: socket, account: Account) -> None:
 			else:
 				for i in range(len(current_round.snakes)):
 					if i != player_num:
-						print("entered")
 						reply.append(current_round.snakes[i].head)
 			
 			conn.sendall(pickle.dumps(reply))
