@@ -1,3 +1,4 @@
+from _thread import start_new_thread
 from typing import List, Union
 
 import pygame
@@ -17,6 +18,7 @@ players = []
 me = None
 n = None  # type: Union[None, Network]
 i = 0  # Shitty solution for load
+mode = -1  # 0 - Lobby, 1 - Room, 2 - Game
 
 
 # Graphics
@@ -239,6 +241,15 @@ def in_room(screen: pygame.display, clock: pygame.time.Clock, my_acc: Account, a
 		clock.tick(60)
 
 
+def listen_to_socket():
+	data = n.receive()
+	while data is None:
+		data = n.receive()
+	
+	if mode == 0:  # Lobby
+		pass
+
+
 def main():
 	global me, players, n
 
@@ -253,6 +264,8 @@ def main():
 	n = Network()
 	n.send((username, password))
 	
+	start_new_thread(listen_to_socket, ())
+	
 	while True:
 
 		data = n.receive()
@@ -263,14 +276,14 @@ def main():
 	
 		# Draw Main Menu while not in a room
 		room, accs = in_lobby(screen, clock, rooms)
-	
+		
 		# Draw the room
 		in_room(screen, clock, my_acc, accs, room)
-	
+		
 		while not room.running:  # Wait for everyone to say "ready"
 			print("waiting")
 			pass
-	
+		
 		message = n.receive()
 		while message is None:
 			message = n.receive()

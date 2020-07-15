@@ -51,9 +51,9 @@ def create_socket():
 	print("Waiting for a connection, Server Started")
 
 
-def get_room(iden):
+def get_room(identifier):
 	for room in rooms:
-		if room.id == iden:
+		if room.id == identifier:
 			return room
 	
 	return None
