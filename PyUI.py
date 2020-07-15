@@ -1,7 +1,7 @@
-import time
 from abc import ABC, abstractmethod
 import pygame
 from globe import *
+import random
 
 
 class ViewHandler:
@@ -66,6 +66,10 @@ class Color:
 	
 	def copy(self):
 		return Color(self.r, self.g, self.b)
+
+	@staticmethod
+	def random_color():
+		return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
 class View(ABC):

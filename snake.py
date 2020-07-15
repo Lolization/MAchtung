@@ -4,13 +4,8 @@ from globe import *
 import time
 
 # TODO - Smoother GUI
-# TODO - GUI
 # TODO - Powers (like in curve fever)
 # TODO - Points counter (score)
-
-# TODO - Gaps:
-# TODO - 1. Consider creating a Gap class
-# TODO - 2. Movement through gaps is laggy
 
 
 class Snake:

@@ -312,7 +312,6 @@ def main():
 					run = False
 
 		me.move()
-		# redraw_window(win)
 		'''
 		for head in heads + [me.head]:
 			if not head.gap:

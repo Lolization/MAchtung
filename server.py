@@ -2,13 +2,9 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM, error
 from _thread import *
 from typing import Union
-from snake import Snake
-import sys
 import pickle
 from room import Room
-from round import Round
 from game import Game
-from player import Player
 from globe import *
 from account import Account
 
@@ -17,9 +13,7 @@ from account import Account
 # TODO - 2. menu
 # TODO - 3. messages to the user (you win, you lose, etc.)
 
-# TODO - massive amount of data needs to be received (entire list of points)
 # TODO - create an .exe file
-# TODO: Crashes when creating room after a game started
 
 P1_COLOR = P2_COLOR = (20, 20, 20)
 rooms = []
@@ -146,10 +140,7 @@ def threaded_client(conn: socket, account: Account) -> None:
 	print(message)
 
 	time.sleep(1)
-	
 	conn.sendall(pickle.dumps(message))
-	
-	print("Sent message")
 	
 	while True:
 		try:
