@@ -177,6 +177,63 @@ class AbsTextView(View, ABC):
 		return self
 
 
+class LoadBar(View):
+	def __init__(self, x, y, w=50, h=50):
+		super().__init__(x, y, w, h)
+		self.percent = 0
+
+		self.on_click_listener = None
+		self.on_right_click_listener = None
+
+		self.on_hover_listener = None
+		self.on_unhover_listener = None
+		self.hover_active = False
+
+		self.frame = pygame.Rect(self.x, self.y, self.w, self.h)
+		self.load_bar = pygame.Rect(self.x + self.w / 50, self.y + self.h / 50, 0, self.h / 30)
+		self.border = 2
+		self.color = Color(255, 255, 255)
+		self.rainbow = False
+		self.frame = False
+
+	def set_rainbow(self, is_rainbow):
+		self.rainbow = is_rainbow
+		return self
+
+	def draw(self, screen):
+		if self.frame:
+			pygame.draw.rect(screen, self.color.to_arr(), self.frame, self.border)
+		pygame.draw.rect(screen, self.color.to_arr(), self.load_bar)
+		return self
+
+	def load(self, percent):
+		self.percent = percent
+		self.load_bar = pygame.Rect(self.x + self.w / 50, self.y + self.h / 50, 0.9 * self.w * (self.percent / 100), self.h / 15)
+
+	def handle_events(self, events):
+		pass
+
+	def set_on_click_listener(self, listener):
+		self.on_click_listener = listener
+		return self
+
+	def set_on_right_click_listener(self, listener):
+		self.on_right_click_listener = listener
+		return self
+
+	def set_on_hover_listener(self, listener):
+		self.on_hover_listener = listener
+		return self
+
+	def set_on_unhover_listener(self, listener):
+		self.on_unhover_listener = listener
+		return self
+
+	def set_draw_frame(self, frame):
+		self.frame = frame
+		return self
+
+
 class Text:
 	def __init__(self, x=0, y=0):
 		self.x = x

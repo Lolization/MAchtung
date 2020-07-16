@@ -30,20 +30,20 @@ def redraw_window(window):
 	pygame.display.update()
 
 
-def on_hover(view):
-	view.text.set_color(Color(0, 0, 0))
-
-
-def on_unhover(view):
-	view.text.set_color(Color(255, 255, 255))
-
-
 def load(screen):
 	global i
 	i += 1
 	i %= 5
 	for k in range(i):
 		pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 15 + (k * 5)), 120), 2)
+
+
+def on_hover(view):
+	view.text.set_color(Color(0, 0, 0))
+
+
+def on_unhover(view):
+	view.text.set_color(Color(255, 255, 255))
 
 
 def is_everyone_ready(accounts):

@@ -1,7 +1,7 @@
 import math
 
 # Connections
-SERVER = "10.0.0.11"
+SERVER = "79.177.97.115"
 PORT = 5000
 
 # Snake initializations
@@ -16,6 +16,7 @@ INVERT = [179, 235, 187]
 FONT_SIZE = 64
 
 
+# Degrees conversions
 def degree_to_rad(rads: float) -> float:
     return rads / (180 / math.pi)
 
