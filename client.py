@@ -38,6 +38,13 @@ def load(screen):
 		pygame.draw.circle(screen, (255, 255, 255), (int((WIDTH / 2) - 15 + (k * 5)), 120), 2)
 
 
+def create_scores(final_score):
+	bars = []
+	for player in enumerate(players):
+		bars.append(LoadBar(WIDTH / 2 - 150, 50 + (i * 75), 300)
+		            .load((player.score / final_score) * 100))
+
+
 def on_hover(view):
 	view.text.set_color(Color(0, 0, 0))
 
@@ -264,7 +271,7 @@ def main():
 	n = Network()
 	n.send((username, password))
 	
-	start_new_thread(listen_to_socket, ())
+	# start_new_thread(listen_to_socket, ())
 	
 	while True:
 

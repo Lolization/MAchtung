@@ -1,8 +1,10 @@
 import math
 
 # Connections
-SERVER = "79.177.97.115"
-PORT = 5000
+TERMI_NONLOCAL = "79.177.97.115"
+DORI_LOCAL = "10.100.102.209"
+SERVER = DORI_LOCAL
+PORT = 5555
 
 # Snake initializations
 START_SPEED = 0.8

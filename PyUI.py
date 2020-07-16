@@ -189,8 +189,8 @@ class LoadBar(View):
 		self.on_unhover_listener = None
 		self.hover_active = False
 
-		self.frame = pygame.Rect(self.x, self.y, self.w, self.h)
-		self.load_bar = pygame.Rect(self.x + self.w / 50, self.y + self.h / 50, 0, self.h / 30)
+		self.frame_rect = pygame.Rect(self.x, self.y, self.w, self.h)
+		self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2, 0, self.h / 30)
 		self.border = 2
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
@@ -202,13 +202,14 @@ class LoadBar(View):
 
 	def draw(self, screen):
 		if self.frame:
-			pygame.draw.rect(screen, self.color.to_arr(), self.frame, self.border)
+			pygame.draw.rect(screen, self.color.to_arr(), self.frame_rect, self.border)
 		pygame.draw.rect(screen, self.color.to_arr(), self.load_bar)
 		return self
 
 	def load(self, percent):
 		self.percent = percent
-		self.load_bar = pygame.Rect(self.x + self.w / 50, self.y + self.h / 50, 0.9 * self.w * (self.percent / 100), self.h / 15)
+		self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2, 0.9 * self.w * (self.percent / 100), self.h / 15)
+		return self
 
 	def handle_events(self, events):
 		pass
