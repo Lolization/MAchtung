@@ -5,7 +5,6 @@ import random
 
 
 class ViewHandler:
-
 	views = []
 	font = None
 
@@ -20,56 +19,10 @@ class ViewHandler:
 			if issubclass(view.__class__, AbsTextView):
 				view.update()
 			view.draw(screen)
-	
+
 	@staticmethod
 	def clear_views():
 		ViewHandler.views.clear()
-
-
-class Color:
-	def __init__(self, r, g=None, b=None):
-		if isinstance(r, Color):  # r is Color
-			self.r = r.r
-			self.g = r.g
-			self.b = r.b
-		else:
-			self.r = r
-			self.g = g
-			self.b = b
-
-	def set_color(self, rgb):
-		self.r = rgb.r
-		self.g = rgb.g
-		self.b = rgb.b
-		return self
-
-	def to_arr(self) -> list:
-		return [self.r, self.g, self.b]
-
-	def equals(self, other) -> bool:
-		return self.r == other.r and self.g == other.g and self.b == other.b
-
-	def reverted(self):
-		return Color(255 - self.r, 255 - self.g, 255 - self.b)
-
-	def is_similar(self, other):
-		return abs(self.r - other.r) + abs(self.g - other.g) + abs(self.b - other.b) < 100
-	
-	def add(self, amount):
-		self.r += amount
-		self.r %= 256
-		self.g += amount
-		self.g %= 256
-		self.b += amount
-		self.b %= 256
-		return self
-	
-	def copy(self):
-		return Color(self.r, self.g, self.b)
-
-	@staticmethod
-	def random_color():
-		return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
 class View(ABC):
@@ -105,6 +58,131 @@ class View(ABC):
 	@abstractmethod
 	def handle_events(self, events):
 		pass
+
+
+class Text:
+	def __init__(self, x=0, y=0):
+		self.x = x
+		self.y = y
+		self.w = 50
+		self.h = 50
+
+		self.active = False
+		self.text = "Text"
+		self.length = len(self.text)
+		self.color = Color(255, 255, 255)
+		self.rainbow = False
+		self.font_size = FONT_SIZE
+		self.font_type = "microsoftjhengheimicrosoftjhengheiuilight"
+		self.font = pygame.font.SysFont(self.font_type, self.font_size)
+
+	def is_rainbow(self, is_rainbow):
+		self.rainbow = is_rainbow
+
+	def set_text(self, text):
+		self.text = text
+
+	def get_pixel_size(self):
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		return word_surface.get_size()
+
+	def set_font_size(self, size):
+		self.font_size = size
+		self.font = pygame.font.SysFont(self.font_type, size)
+
+	def set_font_type(self, font_type):
+		self.font_type = font_type
+		self.font = pygame.font.SysFont(self.font_type, self.font_size)
+
+	def set_color(self, rgb):
+		self.color = rgb
+
+	def draw(self, screen):
+		x, y = self.x, self.y
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		screen.blit(word_surface, (x, y))
+
+	def update(self, width, height):
+		word_surface = self.font.render(self.text, 0, self.color.to_arr())
+		word_width, word_height = word_surface.get_size()
+
+		while word_width * 1.7 <= width and word_height * 1.7 <= height:
+			self.set_font_size(self.font_size + 1)
+			word_surface = self.font.render(self.text, 0, self.color.to_arr())
+			word_width, word_height = word_surface.get_size()
+
+		while word_width * 1.7 > width or word_height * 1.7 > height:
+			self.set_font_size(self.font_size - 1)
+			word_surface = self.font.render(self.text, 0, self.color.to_arr())
+			word_width, word_height = word_surface.get_size()
+
+	def center(self, x, y, width, height):
+		text_width, text_height = self.get_pixel_size()
+		self.x = x + int((width - text_width) / 2)
+		self.y = y + int((height - text_height) / 2)
+
+	def do_rainbow(self):
+		r, g, b = self.color.to_arr()
+		if r == 255 and b > 0:
+			b -= 1
+		elif r == 255 and g < 255:
+			g += 1
+		elif g == 255 and 0 < r:
+			r -= 1
+		elif g == 255 and b < 255:
+			b += 1
+		elif b == 255 and 0 < g:
+			g -= 1
+		elif b == 255 and r < 255:
+			r += 1
+
+		self.color = Color(r, g, b)
+
+
+class Color:
+	def __init__(self, r, g=None, b=None):
+		if isinstance(r, Color):  # r is Color
+			self.r = r.r
+			self.g = r.g
+			self.b = r.b
+		else:
+			self.r = r
+			self.g = g
+			self.b = b
+
+	def set_color(self, rgb):
+		self.r = rgb.r
+		self.g = rgb.g
+		self.b = rgb.b
+		return self
+
+	def to_arr(self) -> list:
+		return [self.r, self.g, self.b]
+
+	def equals(self, other) -> bool:
+		return self.r == other.r and self.g == other.g and self.b == other.b
+
+	def reverted(self):
+		return Color(255 - self.r, 255 - self.g, 255 - self.b)
+
+	def is_similar(self, other):
+		return abs(self.r - other.r) + abs(self.g - other.g) + abs(self.b - other.b) < 100
+
+	def add(self, amount):
+		self.r += amount
+		self.r %= 256
+		self.g += amount
+		self.g %= 256
+		self.b += amount
+		self.b %= 256
+		return self
+
+	def copy(self):
+		return Color(self.r, self.g, self.b)
+
+	@staticmethod
+	def random_color():
+		return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
 class AbsTextView(View, ABC):
@@ -177,39 +255,27 @@ class AbsTextView(View, ABC):
 		return self
 
 
-class LoadBar(View):
+class Loader(View, ABC):
 	def __init__(self, x, y, w=50, h=50):
 		super().__init__(x, y, w, h)
 		self.percent = 0
+		self.mode = "horizontal"
 
 		self.on_click_listener = None
 		self.on_right_click_listener = None
-
 		self.on_hover_listener = None
 		self.on_unhover_listener = None
 		self.hover_active = False
 
-		self.frame_rect = pygame.Rect(self.x, self.y, self.w, self.h)
-		self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2, 0, self.h / 30)
-		self.border = 2
+		self.load_bar = None
 		self.color = Color(255, 255, 255)
 		self.rainbow = False
-		self.frame = False
 
 	def set_rainbow(self, is_rainbow):
 		self.rainbow = is_rainbow
-		return self
-
-	def draw(self, screen):
-		if self.frame:
-			pygame.draw.rect(screen, self.color.to_arr(), self.frame_rect, self.border)
-		pygame.draw.rect(screen, self.color.to_arr(), self.load_bar)
-		return self
 
 	def load(self, percent):
-		self.percent = percent
-		self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2, 0.9 * self.w * (self.percent / 100), self.h / 15)
-		return self
+		pass
 
 	def handle_events(self, events):
 		pass
@@ -230,88 +296,93 @@ class LoadBar(View):
 		self.on_unhover_listener = listener
 		return self
 
+	def set_horizontal(self):
+		self.mode = "horizontal"
+
+	def set_vertical(self):
+		self.mode = "vertical"
+
+
+class LoadBar(Loader):
+	def __init__(self, x, y, w=50, h=50):
+		super().__init__(x, y, w, h)
+		self.frame_rect = pygame.Rect(self.x, self.y, self.w, self.h)
+		self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2, 0.9 * self.w * (self.percent / 100),
+		                            self.h / 15)
+		self.border = 2
+		self.frame = False
+
+	def draw(self, screen):
+		if self.frame:
+			pygame.draw.rect(screen, self.color.to_arr(), self.frame_rect, self.border)
+		pygame.draw.rect(screen, self.color.to_arr(), self.load_bar)
+		return self
+
+	def load(self, percent):
+		self.percent = percent
+		if self.mode == "horizontal":
+			self.load_bar = pygame.Rect(self.x + self.w * 0.05, self.y + self.h / 2,
+			                            0.9 * self.w * (self.percent / 100), self.h / 15)
+		else:
+			self.load_bar = pygame.Rect(self.x + self.w / 2, self.y + self.h * 0.05,
+			                            self.w / 15, 0.9 * self.h * (self.percent / 100))
+		return self
+
 	def set_draw_frame(self, frame):
 		self.frame = frame
 		return self
 
 
-class Text:
-	def __init__(self, x=0, y=0):
-		self.x = x
-		self.y = y
-		self.w = 50
-		self.h = 50
-
-		self.active = False
-		self.text = "Text"
-		self.length = len(self.text)
+class _Point(View):
+	def __init__(self, x=0, y=0, radius=2):
+		super().__init__(x, y, 6, 6)
+		self.radius = radius
 		self.color = Color(255, 255, 255)
-		self.rainbow = False
-		self.font_size = FONT_SIZE
-		self.font_type = "microsoftjhengheimicrosoftjhengheiuilight"
-		self.font = pygame.font.SysFont(self.font_type, self.font_size)
-
-	def is_rainbow(self, is_rainbow):
-		self.rainbow = is_rainbow
-
-	def set_text(self, text):
-		self.text = text
-
-	def get_pixel_size(self):
-		word_surface = self.font.render(self.text, 0, self.color.to_arr())
-		return word_surface.get_size()
-
-	def set_font_size(self, size):
-		self.font_size = size
-		self.font = pygame.font.SysFont(self.font_type, size)
-
-	def set_font_type(self, font_type):
-		self.font_type = font_type
-		self.font = pygame.font.SysFont(self.font_type, self.font_size)
-
-	def set_color(self, rgb):
-		self.color = rgb
 
 	def draw(self, screen):
-		x, y = self.x, self.y
-		word_surface = self.font.render(self.text, 0, self.color.to_arr())
-		screen.blit(word_surface, (x, y))
+		pygame.draw.circle(screen, self.color.to_arr(), (self.x, self.y), self.radius)
+		return self
 
-	def update(self, width, height):
-		word_surface = self.font.render(self.text, 0, self.color.to_arr())
-		word_width, word_height = word_surface.get_size()
-		
-		while word_width * 1.7 <= width and word_height * 1.7 <= height:
-			self.set_font_size(self.font_size + 1)
-			word_surface = self.font.render(self.text, 0, self.color.to_arr())
-			word_width, word_height = word_surface.get_size()
-		
-		while word_width * 1.7 > width or word_height * 1.7 > height:
-			self.set_font_size(self.font_size - 1)
-			word_surface = self.font.render(self.text, 0, self.color.to_arr())
-			word_width, word_height = word_surface.get_size()
+	def handle_events(self, events):
+		pass
 
-	def center(self, x, y, width, height):
-		text_width, text_height = self.get_pixel_size()
-		self.x = x + int((width - text_width) / 2)
-		self.y = y + int((height - text_height) / 2)
+	def set_color(self, color):
+		self.color = color
 
-	def do_rainbow(self):
-		r, g, b = self.color.to_arr()
-		if r == 255 and b > 0:
-			b -= 1
-		elif r == 255 and g < 255:
-			g += 1
-		elif g == 255 and 0 < r:
-			r -= 1
-		elif g == 255 and b < 255:
-			b += 1
-		elif b == 255 and 0 < g:
-			g -= 1
-		elif b == 255 and r < 255:
-			r += 1
 
-		self.color = Color(r, g, b)
+class LoadDots(Loader):
+	def __init__(self, x, y, w=50, h=50, amount=5, radius=2):
+		super().__init__(x, y, w, h)
+		self.load_bar = []
+		self.amount = amount
+		self.current_amount = 0
+		self.radius = radius
+
+	def draw(self, screen):
+		for point in self.load_bar:
+			point.draw(screen)
+
+	def iterate(self):
+		self.current_amount += 1
+		self.current_amount %= self.amount
+		if self.current_amount == 0:
+			self.load_bar = []
+		else:
+			if self.current_amount > 1:
+				point = self.load_bar[-1]
+				if self.mode == "horizontal":
+					point.x += 5
+				else:
+					point.y += 5
+			else:
+				point = _Point(self.x, self.y, self.radius)
+			self.load_bar.append(point)
+
+	def load(self, percent):
+		self.percent = percent
+		num = int(self.amount * (percent / 100))
+		self.current_amount = num - 1
+		self.iterate()
 
 
 class TextView(AbsTextView):
@@ -396,3 +467,14 @@ class Button(AbsTextView):
 
 		if self.text.rainbow:
 			self.text.do_rainbow()
+
+
+class Screen(View):
+	def __init__(self, x=0, y=0, w=50, h=50):
+		super().__init__(x, y, w, h)
+
+	def draw(self, screen):
+		pass
+
+	def handle_events(self, events):
+		pass
