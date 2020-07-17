@@ -26,7 +26,7 @@ class Network:
 		reply = []
 		try:
 			while True:
-				packet = self.client.recv(2048)
+				packet = self.client.recv(1042)
 				if not packet:
 					break
 				reply.append(packet)

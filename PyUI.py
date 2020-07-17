@@ -3,7 +3,8 @@ import pygame
 from globe import *
 import random
 
-keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i]
+# Global pygame variables
+keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_m, pygame.K_n, pygame.K_o, pygame.K_p, pygame.K_q, pygame.K_r, pygame.K_s, pygame.K_t, pygame.K_u, pygame.K_v, pygame.K_w, pygame.K_x, pygame.K_y, pygame.K_z]
 
 
 class ViewHandler:
@@ -50,19 +51,19 @@ class ViewHandler:
 	def next(view):
 		index = ViewHandler.views.index(view) + 1
 		flag = False
-		for i in range(len(ViewHandler.views)):
-			if issubclass(ViewHandler.views[(index + i) % len(ViewHandler.views)].__class__, AbsTextView):
+		for i in range(len(ViewHandler.views) - 1):
+			if type(ViewHandler.views[(index + i) % len(ViewHandler.views)]) is EditText:
 				index += i
 				index %= len(ViewHandler.views)
 				flag = True
 				break
 		if not flag:
+			print("false")
 			return view
 		return ViewHandler.views[index]
 
 
 class View(ABC):
-
 	@abstractmethod
 	def __init__(self, x=0, y=0, w=50, h=50):
 		self.x = x
@@ -290,6 +291,10 @@ class AbsTextView(View, ABC):
 		self.frame = frame
 		return self
 
+	def set_color(self, color):
+		self.color = color
+		self.text.color = color
+
 
 class Loader(View, ABC):
 	def __init__(self, x, y, w=50, h=50):
@@ -437,6 +442,7 @@ class EditText(AbsTextView):
 	def __init__(self, x, y, w=50, h=50):
 		super().__init__(x, y, w, h)
 		self.active = False
+		self.original_color = self.color
 
 	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
@@ -453,18 +459,16 @@ class EditText(AbsTextView):
 				if self.active:
 					if event.key == pygame.K_BACKSPACE:
 						self.text.text = self.text.text
-					elif event.key != pygame.K_TAB:
+					elif event.key in keys:
 						self.text.text += event.unicode
-					else:
-						self.active = False
-						print(ViewHandler.next(self).text.text)
-						ViewHandler.next(self).active = True
+			if event.type == pygame.KEYUP:
+				flag = True
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
-					self.active = True
+					self.set_active(True)
 
 				else:
-					self.active = False
+					self.set_active(False)
 
 				# TODO: This scroll
 				if event.button == 4:  # Scroll Up
@@ -476,15 +480,30 @@ class EditText(AbsTextView):
 		if self.active:
 			if pressed_keys[pygame.K_BACKSPACE]:
 				self.text.text = self.text.text[:-1]
+			elif pressed_keys[pygame.K_TAB]:
+				print("next from ", self.text.text)
+				self.set_active(False)
+				print(ViewHandler.next(self).text.text)
+				ViewHandler.next(self).set_active(True)
+			pygame.event.pump()
 
 		if self.text.rainbow:
 			self.text.do_rainbow()
+
+	def set_active(self, flag):
+		self.active = flag
+		if flag:
+			self.text.color = self.original_color.reverted()
+		else:
+			self.text.color = self.original_color
 
 
 class Button(AbsTextView):
 	def __init__(self, x, y, w=50, h=50):
 		super().__init__(x, y, w, h)
 		self.set_draw_frame(True)
+		self.active = False
+		self.original_color = self.color
 
 	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
@@ -497,12 +516,23 @@ class Button(AbsTextView):
 				self.hover_active = False
 
 		for event in events:
-			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
+			if event.type == pygame.KEYDOWN:
+				if self.active:
+					if event.key == pygame.K_TAB:
+						self.set_active(False)
+						print(ViewHandler.next(self).text.text)
+						ViewHandler.next(self).set_active(True)
+
+			elif event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
 					if event.button == 1:  # Left click
+						self.set_active(True)
 						self.on_click_listener(self)
 					if event.button == 3:  # Right Click
 						self.on_right_click_listener(self)
+
+				else:
+					self.set_active(False)
 
 				# TODO: This scroll
 				if event.button == 4:  # Scroll Up
@@ -512,6 +542,13 @@ class Button(AbsTextView):
 
 		if self.text.rainbow:
 			self.text.do_rainbow()
+
+	def set_active(self, flag):
+		self.active = flag
+		if flag:
+			self.text.color = self.original_color.reverted()
+		else:
+			self.text.color = self.original_color
 
 
 class Screen(View):
