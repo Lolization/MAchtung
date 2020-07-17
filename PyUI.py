@@ -5,9 +5,12 @@ import random
 
 keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i]
 
+
 class ViewHandler:
 	views = []
 	font = None
+	screen = None
+	clock = None
 
 	@staticmethod
 	def handle_view_events(events):
@@ -24,6 +27,24 @@ class ViewHandler:
 	@staticmethod
 	def clear_views():
 		ViewHandler.views.clear()
+
+	@staticmethod
+	def run(process, on_quit):
+		process()
+
+		ViewHandler.screen.fill(BACKGROUND_COLOR)
+		events = pygame.event.get()
+		for event in events:
+			if event.type == pygame.QUIT:
+				on_quit()
+				pygame.quit()
+				break
+
+		ViewHandler.handle_view_events(events)
+
+		ViewHandler.render_views(ViewHandler.screen)
+		pygame.display.flip()
+		ViewHandler.clock.tick(60)
 
 
 class View(ABC):

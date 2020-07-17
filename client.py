@@ -160,7 +160,7 @@ def in_lobby(screen, clock, rooms):
 		.set_on_hover_listener(on_hover) \
 		.set_on_unhover_listener(on_unhover)
 
-	while lobby:
+	def get_new_room():
 		new_room = n.receive()
 		if new_room:
 			print("got room")
@@ -171,19 +171,12 @@ def in_lobby(screen, clock, rooms):
 			            .set_on_hover_listener(on_hover)
 			            .set_on_unhover_listener(on_unhover))
 
-		screen.fill(BACKGROUND_COLOR)
-		events = pygame.event.get()
-		for event in events:
-			if event.type == pygame.QUIT:
-				lobby = False
-				pygame.quit()
-				break
+	def set_lobby_false():
+		nonlocal lobby
+		lobby = False
 
-		ViewHandler.handle_view_events(events)
-
-		ViewHandler.render_views(screen)
-		pygame.display.flip()
-		clock.tick(60)
+	while lobby:
+		ViewHandler.run(get_new_room, set_lobby_false)
 
 	return data
 
@@ -263,6 +256,8 @@ def main():
 	pygame.init()
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	clock = pygame.time.Clock()
+	ViewHandler.clock = clock
+	ViewHandler.screen = screen
 	pygame.display.set_caption("MAAAAAAAAAAAAchtung")
 
 	# Draw Log-in and Register while not connected
