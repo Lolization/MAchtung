@@ -3,6 +3,7 @@ import pygame
 from globe import *
 import random
 
+keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i]
 
 class ViewHandler:
 	views = []
@@ -416,7 +417,7 @@ class EditText(AbsTextView):
 			if event.type == pygame.KEYDOWN:
 				if self.active:
 					if event.key == pygame.K_BACKSPACE:
-						self.text.text = self.text.text[:-1]
+						self.text.text = self.text.text
 					else:
 						self.text.text += event.unicode
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
@@ -431,6 +432,11 @@ class EditText(AbsTextView):
 					pass
 				if event.button == 5:  # Scroll Down
 					pass
+
+		pressed_keys = pygame.key.get_pressed()
+		if self.active:
+			if pressed_keys[pygame.K_BACKSPACE]:
+				self.text.text = self.text.text[:-1]
 
 		if self.text.rainbow:
 			self.text.do_rainbow()
