@@ -46,6 +46,20 @@ class ViewHandler:
 		pygame.display.flip()
 		ViewHandler.clock.tick(60)
 
+	@staticmethod
+	def next(view):
+		index = ViewHandler.views.index(view) + 1
+		flag = False
+		for i in range(len(ViewHandler.views)):
+			if issubclass(ViewHandler.views[(index + i) % len(ViewHandler.views)].__class__, AbsTextView):
+				index += i
+				index %= len(ViewHandler.views)
+				flag = True
+				break
+		if not flag:
+			return view
+		return ViewHandler.views[index]
+
 
 class View(ABC):
 
@@ -439,8 +453,12 @@ class EditText(AbsTextView):
 				if self.active:
 					if event.key == pygame.K_BACKSPACE:
 						self.text.text = self.text.text
-					else:
+					elif event.key != pygame.K_TAB:
 						self.text.text += event.unicode
+					else:
+						self.active = False
+						print(ViewHandler.next(self).text.text)
+						ViewHandler.next(self).active = True
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
 					self.active = True
