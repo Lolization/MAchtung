@@ -13,7 +13,7 @@ class ViewHandler:
 	screen = None
 	clock = None
 	
-	initial_wait = 30
+	initial_wait = 20
 	wait_per_letter = 3
 	initial_wait_counter = 0
 	wait_per_letter_counter = 0
@@ -481,19 +481,20 @@ class EditText(AbsTextView):
 				if event.button == 5:  # Scroll Down
 					pass
 		
-		if ViewHandler.active_key_event:
-			pressed_keys = pygame.key.get_pressed()
-			if pressed_keys[ViewHandler.active_key_event.key]:
-				if ViewHandler.initial_wait_counter < ViewHandler.initial_wait:
-					ViewHandler.initial_wait_counter += 1
+		if self.active:
+			if ViewHandler.active_key_event:
+				pressed_keys = pygame.key.get_pressed()
+				if pressed_keys[ViewHandler.active_key_event.key]:
+					if ViewHandler.initial_wait_counter < ViewHandler.initial_wait:
+						ViewHandler.initial_wait_counter += 1
+					else:
+						ViewHandler.wait_per_letter_counter += 1
+						if ViewHandler.wait_per_letter_counter == ViewHandler.wait_per_letter:
+							handle_key(self)
+							ViewHandler.wait_per_letter_counter = 0
+				
 				else:
-					ViewHandler.wait_per_letter_counter += 1
-					if ViewHandler.wait_per_letter_counter == ViewHandler.wait_per_letter:
-						handle_key(self)
-						ViewHandler.wait_per_letter_counter = 0
-			
-			else:
-				ViewHandler.active_key_event = None
+					ViewHandler.active_key_event = None
 		
 		if self.text.rainbow:
 			self.text.do_rainbow()
