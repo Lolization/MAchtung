@@ -15,7 +15,6 @@ from account import Account
 
 # TODO - create an .exe file
 
-P1_COLOR = P2_COLOR = (20, 20, 20)
 rooms = []
 s = None
 lobby_conns = []
@@ -31,7 +30,7 @@ def main():
 		lobby_conns.append(conn)  # TODO: Email and pass thing verification
 		print("Connected to:", address)
 		
-		username, password = pickle.loads(conn.recv(1042))
+		username, password = pickle.loads(conn.recv(1048))
 		print(username, password, " entered")
 		# TODO: Check if account already exists (Wrong pass, get info, etc.)
 		account = Account(username, password)

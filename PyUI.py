@@ -4,7 +4,7 @@ from globe import *
 import random
 
 # Global pygame variables
-keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_m, pygame.K_n, pygame.K_o, pygame.K_p, pygame.K_q, pygame.K_r, pygame.K_s, pygame.K_t, pygame.K_u, pygame.K_v, pygame.K_w, pygame.K_x, pygame.K_y, pygame.K_z]
+keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, pygame.K_g, pygame.K_h, pygame.K_i, pygame.K_j, pygame.K_k, pygame.K_l, pygame.K_m, pygame.K_n, pygame.K_o, pygame.K_p, pygame.K_q, pygame.K_r, pygame.K_s, pygame.K_t, pygame.K_u, pygame.K_v, pygame.K_w, pygame.K_x, pygame.K_y, pygame.K_z, pygame.K_BACKSPACE]
 
 
 class ViewHandler:
@@ -12,6 +12,12 @@ class ViewHandler:
 	font = None
 	screen = None
 	clock = None
+	
+	initial_wait = 30
+	wait_per_letter = 3
+	initial_wait_counter = 0
+	wait_per_letter_counter = 0
+	active_key_event = None
 
 	@staticmethod
 	def handle_view_events(events):
@@ -32,7 +38,7 @@ class ViewHandler:
 	@staticmethod
 	def run(process, on_quit):
 		process()
-
+		
 		ViewHandler.screen.fill(BACKGROUND_COLOR)
 		events = pygame.event.get()
 		for event in events:
@@ -40,9 +46,9 @@ class ViewHandler:
 				on_quit()
 				pygame.quit()
 				break
-
+		
 		ViewHandler.handle_view_events(events)
-
+		
 		ViewHandler.render_views(ViewHandler.screen)
 		pygame.display.flip()
 		ViewHandler.clock.tick(60)
@@ -457,16 +463,15 @@ class EditText(AbsTextView):
 		for event in events:
 			if event.type == pygame.KEYDOWN:
 				if self.active:
-					if event.key == pygame.K_BACKSPACE:
-						self.text.text = self.text.text
-					elif event.key in keys:
-						self.text.text += event.unicode
+					ViewHandler.active_key_event = event
+					ViewHandler.initial_wait_counter = 0
+					ViewHandler.wait_per_letter_counter = 0
+					handle_key(self)
 			if event.type == pygame.KEYUP:
-				flag = True
+				pass
 			if event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
 				if self.obj.collidepoint(event.pos):
 					self.set_active(True)
-
 				else:
 					self.set_active(False)
 
@@ -475,18 +480,21 @@ class EditText(AbsTextView):
 					pass
 				if event.button == 5:  # Scroll Down
 					pass
-
-		pressed_keys = pygame.key.get_pressed()
-		if self.active:
-			if pressed_keys[pygame.K_BACKSPACE]:
-				self.text.text = self.text.text[:-1]
-			elif pressed_keys[pygame.K_TAB]:
-				print("next from ", self.text.text)
-				self.set_active(False)
-				print(ViewHandler.next(self).text.text)
-				ViewHandler.next(self).set_active(True)
-			pygame.event.pump()
-
+		
+		if ViewHandler.active_key_event:
+			pressed_keys = pygame.key.get_pressed()
+			if pressed_keys[ViewHandler.active_key_event.key]:
+				if ViewHandler.initial_wait_counter < ViewHandler.initial_wait:
+					ViewHandler.initial_wait_counter += 1
+				else:
+					ViewHandler.wait_per_letter_counter += 1
+					if ViewHandler.wait_per_letter_counter == ViewHandler.wait_per_letter:
+						handle_key(self)
+						ViewHandler.wait_per_letter_counter = 0
+			
+			else:
+				ViewHandler.active_key_event = None
+		
 		if self.text.rainbow:
 			self.text.do_rainbow()
 
@@ -560,3 +568,15 @@ class Screen(View):
 
 	def handle_events(self, events):
 		pass
+
+
+def handle_key(view):
+	if ViewHandler.active_key_event.key == pygame.K_BACKSPACE:
+		view.text.text = view.text.text[:-1]
+	elif ViewHandler.active_key_event.key == pygame.K_TAB:
+		print("next from", view.text.text)
+		view.set_active(False)
+		# print(ViewHandler.next(view).text.text)
+		ViewHandler.next(view).set_active(True)
+	else:
+		view.text.text += ViewHandler.active_key_event.unicode

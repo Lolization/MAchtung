@@ -11,7 +11,7 @@ class Network:
 	def __init__(self):
 		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.client.settimeout(0.015)
-		self.server = SERVER
+		self.server = TERMI_LOCAL
 		self.port = PORT
 		self.address = (self.server, self.port)
 		self.client.connect(self.address)
