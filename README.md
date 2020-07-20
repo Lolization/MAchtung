@@ -9,3 +9,5 @@ allowing you to use Pygame without having to worry about handling background Pyg
 
 ## Achtung
 This is an Achtung game, resembling Curvefever.
+When entering the game you are viewed with a login page:
+![image](https://user-images.githubusercontent.com/67804152/87941743-43d98e80-caa4-11ea-9352-ac3afc7cec02.png)
