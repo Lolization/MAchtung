@@ -9,6 +9,7 @@ keys = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d, pygame.K_e, pygame.K_f, 
 
 class ViewHandler:
 	views = []
+	interactable_views = []
 	font = None
 	screen = None
 	clock = None
@@ -21,8 +22,15 @@ class ViewHandler:
 
 	@staticmethod
 	def handle_view_events(events):
-		for view in ViewHandler.views:
-			view.handle_events(events)
+		activated_view = None
+		for view in ViewHandler.interactable_views:
+			view.handle_events(events)  # this!
+			if view.active:
+				activated_view = view
+				break
+		
+		# if activated_view:
+			# activated_view.handle_events(events)
 
 	@staticmethod
 	def render_views(screen):
@@ -55,18 +63,8 @@ class ViewHandler:
 
 	@staticmethod
 	def next(view):
-		index = ViewHandler.views.index(view) + 1
-		flag = False
-		for i in range(len(ViewHandler.views) - 1):
-			if type(ViewHandler.views[(index + i) % len(ViewHandler.views)]) is EditText:
-				index += i
-				index %= len(ViewHandler.views)
-				flag = True
-				break
-		if not flag:
-			print("false")
-			return view
-		return ViewHandler.views[index]
+		index = ViewHandler.interactable_views.index(view)
+		return ViewHandler.interactable_views[(index + 1) % len(ViewHandler.interactable_views)]
 
 
 class View(ABC):
@@ -447,6 +445,7 @@ class TextView(AbsTextView):
 class EditText(AbsTextView):
 	def __init__(self, x, y, w=50, h=50):
 		super().__init__(x, y, w, h)
+		ViewHandler.interactable_views.append(self)
 		self.active = False
 		self.original_color = self.color
 
