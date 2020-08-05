@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import List
+
 import pygame
 from globe import *
 import random
@@ -13,6 +15,9 @@ class ViewHandler:
 	font = None
 	screen = None
 	clock = None
+	TICKS = 60
+	
+	MIN_TEXT = 10
 	
 	initial_wait = 20
 	wait_per_letter = 3
@@ -22,15 +27,27 @@ class ViewHandler:
 
 	@staticmethod
 	def handle_view_events(events):
+		ViewHandler.handle_mouse_events(events)
+		
 		activated_view = None
 		for view in ViewHandler.interactable_views:
-			view.handle_events(events)  # this!
 			if view.active:
 				activated_view = view
 				break
 		
-		# if activated_view:
-			# activated_view.handle_events(events)
+		if activated_view:
+			activated_view.handle_events(events)
+	
+	# Gives all views the mouse events, and removes them from the events list
+	@staticmethod
+	def handle_mouse_events(events: List[pygame.event.EventType]):
+		mouse_events = []
+		for event in events:
+			if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEWHEEL:  # Any mouse event
+				mouse_events.append(event)
+				events.remove(event)
+		for view in ViewHandler.interactable_views:
+			view.handle_events(mouse_events)
 
 	@staticmethod
 	def render_views(screen):
@@ -42,6 +59,7 @@ class ViewHandler:
 	@staticmethod
 	def clear_views():
 		ViewHandler.views.clear()
+		ViewHandler.interactable_views.clear()
 
 	@staticmethod
 	def run(process, on_quit):
@@ -59,7 +77,7 @@ class ViewHandler:
 		
 		ViewHandler.render_views(ViewHandler.screen)
 		pygame.display.flip()
-		ViewHandler.clock.tick(60)
+		ViewHandler.clock.tick(ViewHandler.TICKS)
 
 	@staticmethod
 	def next(view):
@@ -152,7 +170,7 @@ class Text:
 			word_surface = self.font.render(self.text, 0, self.color.to_arr())
 			word_width, word_height = word_surface.get_size()
 
-		while word_width * 1.7 > width or word_height * 1.7 > height:
+		while (word_width * 1.7 > width or word_height * 1.7 > height) and self.font_size > ViewHandler.MIN_TEXT:
 			self.set_font_size(self.font_size - 1)
 			word_surface = self.font.render(self.text, 0, self.color.to_arr())
 			word_width, word_height = word_surface.get_size()
@@ -451,7 +469,7 @@ class EditText(AbsTextView):
 
 	def handle_events(self, events):
 		if self.on_hover_listener is not None and self.on_unhover_listener is not None:
-			if self.obj.collidepoint(pygame.mouse.get_pos()):
+			if self.obj.collidepoint(pygame.mouse.get_pos()) and not self.hover_active:
 				self.on_hover_listener(self)
 				self.hover_active = True
 
@@ -480,20 +498,19 @@ class EditText(AbsTextView):
 				if event.button == 5:  # Scroll Down
 					pass
 		
-		if self.active:
-			if ViewHandler.active_key_event:
-				pressed_keys = pygame.key.get_pressed()
-				if pressed_keys[ViewHandler.active_key_event.key]:
-					if ViewHandler.initial_wait_counter < ViewHandler.initial_wait:
-						ViewHandler.initial_wait_counter += 1
-					else:
-						ViewHandler.wait_per_letter_counter += 1
-						if ViewHandler.wait_per_letter_counter == ViewHandler.wait_per_letter:
-							handle_key(self)
-							ViewHandler.wait_per_letter_counter = 0
-				
+		if self.active and ViewHandler.active_key_event:
+			pressed_keys = pygame.key.get_pressed()
+			if pressed_keys[ViewHandler.active_key_event.key]:
+				if ViewHandler.initial_wait_counter < ViewHandler.initial_wait:
+					ViewHandler.initial_wait_counter += 1
 				else:
-					ViewHandler.active_key_event = None
+					ViewHandler.wait_per_letter_counter += 1
+					if ViewHandler.wait_per_letter_counter == ViewHandler.wait_per_letter:
+						handle_key(self)
+						ViewHandler.wait_per_letter_counter = 0
+			
+			else:
+				ViewHandler.active_key_event = None
 		
 		if self.text.rainbow:
 			self.text.do_rainbow()
@@ -528,7 +545,6 @@ class Button(AbsTextView):
 				if self.active:
 					if event.key == pygame.K_TAB:
 						self.set_active(False)
-						print(ViewHandler.next(self).text.text)
 						ViewHandler.next(self).set_active(True)
 
 			elif event.type == pygame.MOUSEBUTTONDOWN:  # Any button click
@@ -574,9 +590,7 @@ def handle_key(view):
 	if ViewHandler.active_key_event.key == pygame.K_BACKSPACE:
 		view.text.text = view.text.text[:-1]
 	elif ViewHandler.active_key_event.key == pygame.K_TAB:
-		print("next from", view.text.text)
 		view.set_active(False)
-		# print(ViewHandler.next(view).text.text)
 		ViewHandler.next(view).set_active(True)
 	else:
 		view.text.text += ViewHandler.active_key_event.unicode
