@@ -46,7 +46,7 @@ class ViewHandler:
 			if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEWHEEL:  # Any mouse event
 				mouse_events.append(event)
 				events.remove(event)
-		for view in ViewHandler.views:
+		for view in ViewHandler.interactable_views:
 			view.handle_events(mouse_events)
 
 	@staticmethod
@@ -526,6 +526,7 @@ class EditText(AbsTextView):
 class Button(AbsTextView):
 	def __init__(self, x, y, w=50, h=50):
 		super().__init__(x, y, w, h)
+		ViewHandler.interactable_views.append(self)
 		self.set_draw_frame(True)
 		self.active = False
 		self.original_color = self.color
