@@ -46,7 +46,7 @@ class ViewHandler:
 			if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEMOTION or event.type == pygame.MOUSEWHEEL:  # Any mouse event
 				mouse_events.append(event)
 				events.remove(event)
-		for view in ViewHandler.interactable_views:
+		for view in ViewHandler.views:
 			view.handle_events(mouse_events)
 
 	@staticmethod
@@ -497,7 +497,7 @@ class EditText(AbsTextView):
 					pass
 				if event.button == 5:  # Scroll Down
 					pass
-		
+
 		if self.active and ViewHandler.active_key_event:
 			pressed_keys = pygame.key.get_pressed()
 			if pressed_keys[ViewHandler.active_key_event.key]:

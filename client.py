@@ -258,7 +258,7 @@ def main():
 	clock = pygame.time.Clock()
 	ViewHandler.clock = clock
 	ViewHandler.screen = screen
-	pygame.display.set_caption("MAAAAAAAAAAAAchtung")
+	pygame.display.set_caption("MAchtung")
 
 	# Draw Log-in and Register while not connected
 	username, password = in_login(screen, clock)
