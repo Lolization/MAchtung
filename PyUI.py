@@ -544,6 +544,8 @@ class Button(AbsTextView):
 		for event in events:
 			if event.type == pygame.KEYDOWN:
 				if self.active:
+					if event.key == pygame.K_RETURN:
+						self.on_click_listener(self)
 					if event.key == pygame.K_TAB:
 						self.set_active(False)
 						ViewHandler.next(self).set_active(True)
@@ -593,5 +595,5 @@ def handle_key(view):
 	elif ViewHandler.active_key_event.key == pygame.K_TAB:
 		view.set_active(False)
 		ViewHandler.next(view).set_active(True)
-	else:
+	elif ViewHandler.active_key_event.key in keys:
 		view.text.text += ViewHandler.active_key_event.unicode
